@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rebuild</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f7f4ef;color:#1c1c1e;min-height:100vh;padding-bottom:80px}
+.hdr{background:#1c1c1e;padding:32px 24px 0}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.hdr-title{font-family:'Lora',serif;font-size:30px;font-weight:600;color:#f5f0e8;letter-spacing:-0.5px}
+.hdr-sub{font-size:13px;color:rgba(245,240,232,0.45);margin-top:4px;font-weight:300}
+.claude-btn{background:rgba(200,132,42,0.18);border:1px solid rgba(200,132,42,0.35);color:#e8c882;text-decoration:none;font-size:12px;font-weight:500;padding:8px 14px;border-radius:20px;white-space:nowrap;transition:background 0.2s}
+.claude-btn:hover{background:rgba(200,132,42,0.3)}
+.stats{display:flex;gap:20px;padding:0 24px 24px;background:#1c1c1e}
+.stat{display:flex;flex-direction:column}
+.stat-n{font-family:'Lora',serif;font-size:28px;color:#e0c88a;line-height:1}
+.stat-l{font-size:10px;color:rgba(245,240,232,0.38);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
+.pbar-wrap{background:#1c1c1e;padding:0 24px 22px}
+.pbar{display:flex;gap:4px;margin-bottom:7px}
+.pseg{height:4px;border-radius:2px;flex:1;background:rgba(255,255,255,0.07);overflow:hidden}
+.pseg .fill{height:100%;border-radius:2px;transition:width 0.6s ease}
+.f1{background:#7b9e8a}.f2{background:#c8842a}.f3{background:#7b8fc4}
+.pnames{display:flex;justify-content:space-between}
+.pname{font-size:10px;color:rgba(245,240,232,0.28);text-transform:uppercase;letter-spacing:0.4px}
+.pname.on{color:rgba(245,240,232,0.72)}
+.wdots-wrap{background:#1c1c1e;padding:0 24px 24px}
+.wdots-lbl{font-size:10px;color:rgba(245,240,232,0.3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.wdots{display:flex;gap:5px;flex-wrap:wrap}
+.wd{width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);cursor:pointer;transition:transform 0.15s;flex-shrink:0}
+.wd:hover{transform:scale(1.25)}
+.wd.dp1{background:#7b9e8a;border-color:#7b9e8a}
+.wd.dp2{background:#c8842a;border-color:#c8842a}
+.wd.dp3{background:#7b8fc4;border-color:#7b8fc4}
+.wd.cur{border-color:#f5f0e8;box-shadow:0 0 0 2px rgba(245,240,232,0.2)}
+.wd.fut{opacity:0.25;cursor:default}
+.content{padding:24px;max-width:620px}
+.slbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:#9a9490;margin-bottom:11px;margin-top:28px}
+.slbl:first-child{margin-top:0}
+.wcard{background:white;border-radius:14px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:10px}
+.wcard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.wtag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;padding:4px 10px;border-radius:20px}
+.t1{background:#e8f4ee;color:#4a7c59}.t2{background:#fdf0dc;color:#c8842a}.t3{background:#eaecf8;color:#5a6db0}
+.wcard-title{font-family:'Lora',serif;font-size:18px;font-weight:600;margin-bottom:6px}
+.wcard-focus{font-size:14px;color:#5a5a5e;line-height:1.5;margin-bottom:14px}
+.wcard-note{font-size:13px;color:#9a9490;font-style:italic;padding:10px 14px;background:#faf7f2;border-radius:8px}
+.wcard-default{margin-top:12px;font-size:12px;color:#9a9490}
+.wcard-default strong{color:#1c1c1e}
+.stepper{display:flex;gap:6px;align-items:center}
+.sbtn{width:34px;height:34px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#f5f0e8;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.sbtn:hover{background:rgba(255,255,255,0.15)}
+.card{background:white;border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:10px}
+.clink{display:flex;align-items:center;gap:14px;padding:16px 18px;text-decoration:none;color:#1c1c1e;transition:background 0.15s;border-bottom:1px solid #f0ece6}
+.clink:last-child{border-bottom:none}
+.clink:hover{background:#faf7f2}
+.cicon{font-size:20px;width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ctxt{flex:1}
+.ctitle{font-weight:500;font-size:14px;margin-bottom:2px}
+.cdesc{font-size:12px;color:#9a9490;line-height:1.4}
+.carr{font-size:16px;color:#d0cbc4}
+.tasklist{background:white;border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:10px}
+.task-item{display:flex;align-items:flex-start;gap:13px;padding:15px 18px;border-bottom:1px solid #f0ece6;cursor:pointer;transition:background 0.15s}
+.task-item:last-child{border-bottom:none}
+.task-item:hover{background:#faf7f2}
+.task-item.active-task{background:#fdf8f0}
+.tchk{width:20px;height:20px;border-radius:50%;border:2px solid #e0dbd4;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:11px;color:transparent}
+.task-item.done-task .tchk{background:#4a7c59;border-color:#4a7c59;color:white}
+.task-item.done-task .tname{opacity:0.45;text-decoration:line-through}
+.ttxt{flex:1}
+.tname{font-weight:500;font-size:14px;margin-bottom:3px;line-height:1.3}
+.tdesc{font-size:12px;color:#9a9490;line-height:1.4}
+.tmeta{font-size:11px;color:#c8842a;font-weight:500;margin-top:3px}
+.tthiswk{font-size:10px;padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle;font-weight:600}
+.pgrp-hdr{padding:9px 18px 5px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:#9a9490;background:#faf7f2;border-bottom:1px solid #f0ece6}
+.jcard{background:white;border-radius:14px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:10px}
+.jdate{font-size:12px;color:#9a9490;margin-bottom:14px}
+.plbl{font-size:13px;font-weight:500;margin-bottom:5px}
+.plbl span{color:#c8842a}
+textarea{width:100%;border:1.5px solid #e8e3dc;border-radius:9px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:14px;color:#1c1c1e;resize:none;background:#faf7f2;line-height:1.5;margin-bottom:12px;transition:border-color 0.2s}
+textarea:focus{outline:none;border-color:#c8842a;background:white}
+textarea::placeholder{color:#c0b8ad}
+.brow{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:10px 17px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s}
+.bd{background:#1c1c1e;color:#f5f0e8}.bd:hover{background:#2c2c30}
+.ba{background:#fdf0dc;color:#c8842a}.ba:hover{background:#f8e4c0}
+.bo{background:transparent;color:#9a9490;border:1.5px solid #e0dbd4}.bo:hover{border-color:#9a9490;color:#1c1c1e}
+.br{background:transparent;color:#c0392b;border:1.5px solid #f5c6c3;font-size:12px;padding:8px 14px}.br:hover{background:#fdecea}
+.elist{margin-top:14px;border-top:1px solid #f0ece6;padding-top:14px;display:none}
+.entry{background:#faf7f2;border-radius:9px;padding:12px 13px;margin-bottom:7px}
+.edate{font-size:10px;font-weight:600;color:#9a9490;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px}
+.eline{font-size:13px;line-height:1.5;margin-bottom:4px;padding-left:9px;border-left:2px solid #e0dbd4;color:#3c3c3e}
+.eline:last-child{margin-bottom:0}
+.eline b{color:#c8842a;font-weight:600}
+.bfoot{display:flex;justify-content:space-between;align-items:center;padding:4px 0;margin-top:4px}
+.bnote{font-size:13px;color:#9a9490;line-height:1.5}
+.overlay{position:fixed;inset:0;background:rgba(28,28,30,0.55);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:100}
+.overlay.on{opacity:1;pointer-events:all}
+.modal{background:white;border-radius:16px;padding:26px;max-width:320px;width:100%;transform:scale(0.95);transition:transform 0.2s}
+.overlay.on .modal{transform:scale(1)}
+.modal h3{font-family:'Lora',serif;font-size:19px;margin-bottom:9px}
+.modal p{font-size:13px;color:#9a9490;line-height:1.5;margin-bottom:20px}
+.mbtns{display:flex;gap:8px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#1c1c1e;color:#f5f0e8;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;transition:transform 0.3s;z-index:200;pointer-events:none}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.loading{color:#9a9490;font-size:13px;padding:16px 0;font-style:italic}
+@media(max-width:420px){.hdr,.stats,.pbar-wrap,.wdots-wrap{padding-left:16px;padding-right:16px}.content{padding:16px}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="hdr-title">Rebuild.</div>
+      <div class="hdr-sub">16 weeks · 30 minutes a day</div>
+    </div>
+    <a href="https://claude.ai/project/019cde92-95c4-740e-bf76-7b0566759a84" target="_blank" class="claude-btn">↗ Teaching Assistant</a>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n" id="sWeek">1</div><div class="stat-l">Week</div></div>
+  <div class="stat"><div class="stat-n" id="sPhase">1</div><div class="stat-l">Phase</div></div>
+  <div class="stat"><div class="stat-n" id="sEntries">0</div><div class="stat-l">Entries</div></div>
+  <div class="stat"><div class="stat-n" id="sDone">0</div><div class="stat-l">Done</div></div>
+</div>
+
+<div class="pbar-wrap">
+  <div class="pbar">
+    <div class="pseg"><div class="fill f1" id="pb1" style="width:0%"></div></div>
+    <div class="pseg"><div class="fill f2" id="pb2" style="width:0%"></div></div>
+    <div class="pseg"><div class="fill f3" id="pb3" style="width:0%"></div></div>
+  </div>
+  <div class="pnames">
+    <span class="pname" id="pn1">Orientation</span>
+    <span class="pname" id="pn2">Foundations</span>
+    <span class="pname" id="pn3">Application</span>
+  </div>
+</div>
+
+<div class="wdots-wrap">
+  <div class="wdots-lbl">16 weeks — tap any week to jump</div>
+  <div class="wdots" id="wdots"></div>
+</div>
+
+<div class="content">
+
+  <div class="slbl">This Week</div>
+  <div id="weekCard" class="wcard"><div class="loading">Loading...</div></div>
+
+  <div class="slbl">Your Tools</div>
+  <div class="card">
+    <a class="clink" href="https://claude.ai/project/019cde92-95c4-740e-bf76-7b0566759a84" target="_blank">
+      <div class="cicon" style="background:#fdf0dc">🤝</div>
+      <div class="ctxt"><div class="ctitle">Teaching Assistant</div><div class="cdesc">Describe a struggle — get a specific task and week recommendation</div></div>
+      <div class="carr">›</div>
+    </a>
+    <a class="clink" href="REBUILD_PROGRAMME.md" target="_blank">
+      <div class="cicon" style="background:#faf0f0">📖</div>
+      <div class="ctxt"><div class="ctitle">Programme Document</div><div class="cdesc">Full 16-week programme with frameworks and your profile annex</div></div>
+      <div class="carr">›</div>
+    </a>
+    <a class="clink" href="KEY.md" target="_blank">
+      <div class="cicon" style="background:#f0f3fa">🔑</div>
+      <div class="ctxt"><div class="ctitle">The Key</div><div class="cdesc">Issue lookup — matches any struggle to the right task and week</div></div>
+      <div class="carr">›</div>
+    </a>
+  </div>
+
+  <div class="slbl">All Tasks — Navigate Freely</div>
+  <div class="tasklist" id="taskList"><div class="loading" style="padding:16px 18px">Loading tasks...</div></div>
+
+  <div class="slbl">Three Sentences — Tonight</div>
+  <div class="jcard">
+    <div class="jdate" id="jdate"></div>
+    <div class="plbl"><span>1.</span> What drained me today</div>
+    <textarea id="s1" placeholder="One specific thing — not a general feeling..." rows="2"></textarea>
+    <div class="plbl"><span>2.</span> What gave me even a small amount of energy</div>
+    <textarea id="s2" placeholder="However small it was..." rows="2"></textarea>
+    <div class="plbl"><span>3.</span> What my body was doing that my words were not saying</div>
+    <textarea id="s3" placeholder="Tension, flat, muddled — whatever is honest..." rows="2"></textarea>
+    <div class="brow">
+      <button class="btn bd" onclick="saveEntry()">Save Entry</button>
+      <button class="btn ba" onclick="downloadReport()">↓ Download Report</button>
+      <button class="btn bo" onclick="clearJ()">Clear</button>
+    </div>
+    <div class="elist" id="elist"></div>
+  </div>
+
+  <div class="slbl">Programme</div>
+  <div class="bfoot">
+    <div class="bnote">Thirty minutes a day.<br>Sixteen weeks.</div>
+    <button class="btn br" onclick="showReset()">Reset Programme</button>
+  </div>
+
+</div>
+
+<div class="overlay" id="modal">
+  <div class="modal">
+    <h3>Reset Programme?</h3>
+    <p>Clears week, task history and entries. Downloaded reports stay safe. Cannot be undone.</p>
+    <div class="mbtns">
+      <button class="btn br" onclick="doReset()" style="flex:1">Yes, reset</button>
+      <button class="btn bo" onclick="hideReset()" style="flex:1">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// STATE
+function load(){try{return JSON.parse(localStorage.getItem('rb')||'{}')}catch(e){return{}}}
+function persist(s){localStorage.setItem('rb',JSON.stringify(s))}
+function getS(){const s=load();return{week:s.week||1,done:s.done||[],entries:s.entries||[]}}
+
+// TSV
+function parseTSV(txt){
+  const lines=txt.trim().split('\n');
+  const hdr=lines[0].split('\t').map(h=>h.trim());
+  return lines.slice(1).filter(l=>l.trim()).map(l=>{
+    const v=l.split('\t');const o={};
+    hdr.forEach((h,i)=>o[h]=(v[i]||'').trim());
+    return o;
+  });
+}
+
+let schedule=[];
+let tasks=[];
+
+async function loadData(){
+  try{
+    const [st,tt]=await Promise.all([
+      fetch('schedule.tsv').then(r=>{if(!r.ok)throw new Error();return r.text()}),
+      fetch('adult_tasks.tsv').then(r=>{if(!r.ok)throw new Error();return r.text()})
+    ]);
+    schedule=parseTSV(st);
+    tasks=parseTSV(tt);
+  }catch(e){
+    schedule=defaultSchedule();
+    tasks=defaultTasks();
+  }
+  render();
+}
+
+function getPhase(w){return w<=4?1:w<=10?2:3}
+function tagClass(w){return't'+getPhase(w)}
+function phaseLabel(w){return['Phase 1','Phase 2','Phase 3'][getPhase(w)-1]}
+
+function render(){
+  const s=getS();const w=s.week;const p=getPhase(w);
+  document.getElementById('sWeek').textContent=w;
+  document.getElementById('sPhase').textContent=p;
+  document.getElementById('sEntries').textContent=s.entries.length;
+  document.getElementById('sDone').textContent=s.done.length;
+  document.getElementById('pb1').style.width=(Math.min(Math.max(w-1,0),4)/4*100)+'%';
+  document.getElementById('pb2').style.width=(Math.min(Math.max(w-5,0),6)/6*100)+'%';
+  document.getElementById('pb3').style.width=(Math.min(Math.max(w-11,0),6)/6*100)+'%';
+  ['pn1','pn2','pn3'].forEach((id,i)=>document.getElementById(id).className='pname'+(p===i+1?' on':''));
+
+  // dots
+  const de=document.getElementById('wdots');de.innerHTML='';
+  for(let i=1;i<=16;i++){
+    const d=document.createElement('div');d.className='wd';
+    const dp=getPhase(i);
+    if(i<w)d.classList.add('dp'+dp);
+    else if(i===w)d.classList.add('cur');
+    else d.classList.add('fut');
+    d.title='Week '+i;
+    d.onclick=()=>jumpWeek(i);
+    de.appendChild(d);
+  }
+
+  // week card
+  const row=schedule.find(r=>parseInt(r.week)===w);
+  const wc=document.getElementById('weekCard');
+  if(row){
+    const tn=tasks.find(t=>t.id===row.default_task_id);
+    const tname=tn?(tn.task_name||tn.title||row.default_task_id):row.default_task_id;
+    wc.innerHTML=`
+      <div class="wcard-head">
+        <span class="wtag ${tagClass(w)}">${phaseLabel(w)} &middot; Week ${w}</span>
+        <div class="stepper">
+          <button class="sbtn" onclick="changeWeek(-1)">&#8722;</button>
+          <button class="sbtn" onclick="changeWeek(1)">&#43;</button>
+        </div>
+      </div>
+      <div class="wcard-title">${row.title||''}</div>
+      <div class="wcard-focus">${row.focus||''}</div>
+      ${row.note?`<div class="wcard-note">${row.note}</div>`:''}
+      ${row.default_task_id?`<div class="wcard-default">Default task this week: <strong>${tname}</strong></div>`:''}
+    `;
+  }
+
+  // tasks
+  const tl=document.getElementById('taskList');
+  const phases=[{l:'Phase 1 — Orientation',p:'1'},{l:'Phase 2 — Foundations',p:'2'},{l:'Phase 3 — Application',p:'3'}];
+  let html='';
+  const defId=row?row.default_task_id:'';
+  phases.forEach(ph=>{
+    const pt=tasks.filter(t=>String(t.phase)===ph.p);
+    if(!pt.length)return;
+    html+=`<div class="pgrp-hdr">${ph.l}</div>`;
+    pt.forEach(t=>{
+      const done=s.done.includes(t.id);
+      const isThis=t.id===defId;
+      const tc=ph.p==='1'?'background:#e8f4ee;color:#4a7c59':ph.p==='2'?'background:#fdf0dc;color:#c8842a':'background:#eaecf8;color:#5a6db0';
+      html+=`<div class="task-item${done?' done-task':''}${isThis?' active-task':''}" onclick="toggleTask('${t.id}')">
+        <div class="tchk">${done?'&#10003;':''}</div>
+        <div class="ttxt">
+          <div class="tname">${t.task_name||t.title||t.id}${isThis?`<span class="tthiswk" style="${tc}">This week</span>`:''}</div>
+          <div class="tdesc">${t.description||t.desc||''}</div>
+          <div class="tmeta">${t.time||t.duration||''}</div>
+        </div>
+      </div>`;
+    });
+  });
+  tl.innerHTML=html||'<div class="loading" style="padding:16px 18px">No tasks loaded.</div>';
+
+  // journal
+  document.getElementById('jdate').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  renderEntries(s);
+}
+
+function renderEntries(s){
+  const el=document.getElementById('elist');
+  if(!s.entries.length){el.style.display='none';return;}
+  el.style.display='block';
+  let h='<div style="font-size:10px;font-weight:600;color:#9a9490;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:9px">Saved entries</div>';
+  [...s.entries].reverse().slice(0,10).forEach(e=>{
+    h+=`<div class="entry"><div class="edate">${e.date} &middot; Week ${e.week}</div>
+      ${e.s1?`<div class="eline"><b>Drained:</b> ${e.s1}</div>`:''}
+      ${e.s2?`<div class="eline"><b>Energy:</b> ${e.s2}</div>`:''}
+      ${e.s3?`<div class="eline"><b>Body:</b> ${e.s3}</div>`:''}
+    </div>`;
+  });
+  el.innerHTML=h;
+}
+
+function changeWeek(d){const s=getS();s.week=Math.max(1,Math.min(16,s.week+d));persist(s);render()}
+function jumpWeek(w){const s=getS();s.week=w;persist(s);render();showToast('Week '+w)}
+function toggleTask(id){const s=getS();const i=s.done.indexOf(id);if(i>-1)s.done.splice(i,1);else s.done.push(id);persist(s);render()}
+function saveEntry(){
+  const s1=document.getElementById('s1').value.trim();
+  const s2=document.getElementById('s2').value.trim();
+  const s3=document.getElementById('s3').value.trim();
+  if(!s1&&!s2&&!s3){showToast('Nothing to save yet');return;}
+  const s=getS();
+  s.entries.push({date:new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),week:s.week,s1,s2,s3});
+  persist(s);clearJ();render();showToast('Entry saved');
+}
+function clearJ(){['s1','s2','s3'].forEach(id=>document.getElementById(id).value='')}
+function downloadReport(){
+  const s=getS();
+  if(!s.entries.length){showToast('No entries yet');return;}
+  let t='REBUILD PROGRAMME — JOURNAL\n';
+  t+='Generated: '+new Date().toLocaleDateString('en-GB')+'\n';
+  t+='Entries: '+s.entries.length+' | Current week: '+s.week+' | Phase: '+getPhase(s.week)+'\n';
+  t+='------------------------------------------\n\n';
+  s.entries.forEach(e=>{
+    t+=e.date+' | Week '+e.week+'\n';
+    if(e.s1)t+='Drained:  '+e.s1+'\n';
+    if(e.s2)t+='Energy:   '+e.s2+'\n';
+    if(e.s3)t+='Body:     '+e.s3+'\n';
+    t+='\n';
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));
+  a.download='rebuild_log_'+new Date().toISOString().slice(0,10)+'.txt';
+  a.click();showToast('Report downloaded');
+}
+function showReset(){document.getElementById('modal').classList.add('on')}
+function hideReset(){document.getElementById('modal').classList.remove('on')}
+function doReset(){localStorage.removeItem('rb');hideReset();clearJ();render();showToast('Programme reset')}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200)}
+
+function defaultSchedule(){return[
+  {week:'1',phase:'1',title:'Self-observation begins',focus:'Notice without changing. Three sentences every evening. Nothing to fix yet.',default_task_id:'P001',note:'The only task this week is to observe and record.'},
+  {week:'2',phase:'1',title:'Energy mapping',focus:'Track what gives and takes energy. Look for patterns not explanations.',default_task_id:'P002',note:'Add the instinct log alongside three sentences.'},
+  {week:'3',phase:'1',title:'Fairness inventory',focus:'Name what happened without minimising it. What conclusions did you draw about yourself?',default_task_id:'P006',note:'This week goes back before now. Be honest about what is still running.'},
+  {week:'4',phase:'1',title:'Mapping the real structure',focus:'Who actually holds influence here. Not the org chart — the real one.',default_task_id:'P007',note:'Observe only. Do not act on what you find yet.'},
+  {week:'5',phase:'2',title:'One real thing',focus:'Say something genuine to one safe person. Not small talk — something real.',default_task_id:'P005',note:'The smallest possible genuine connection. One person. One moment.'},
+  {week:'6',phase:'2',title:'Values list',focus:'Write your actual values evidenced by what you chose when it cost you something.',default_task_id:'P009',note:'Not aspirational. Real. What did you actually do when it mattered?'},
+  {week:'7',phase:'2',title:'The stillness practice',focus:'Once a day — consciously choose physical stillness. Feet flat, hands still, breathing slow.',default_task_id:'P010',note:'The body can be trained. Start with one minute.'},
+  {week:'8',phase:'2',title:'Small bets',focus:'Once a week act on one instinct in a low stakes situation before reasoning it away.',default_task_id:'P011',note:'Trust the data your instincts have been collecting.'},
+  {week:'9',phase:'2',title:'One sentence contribution',focus:'In one meeting this week say one sentence. Prepare it beforehand. Say it. Stop.',default_task_id:'P008',note:'Not a speech. One sentence. Then let the silence work.'},
+  {week:'10',phase:'2',title:'Presence walk',focus:'Walk into a difficult room deliberately. Choose where to sit. Occupy your actual space.',default_task_id:'P012',note:'This is physical and trainable. Do not shrink.'},
+  {week:'11',phase:'3',title:'Rule audit',focus:'Which rules are load-bearing here. Which are discretionary. Decide your approach to each.',default_task_id:'P013',note:'Understanding a system is not becoming it.'},
+  {week:'12',phase:'3',title:'The non-reaction',focus:'One provocation this week — pause one second longer than natural. Respond to content not tone.',default_task_id:'P014',note:'Give them nothing to work with. Brief, factual, move on.'},
+  {week:'13',phase:'3',title:'Speaking with authority',focus:'Say the important thing clearly and stop. No qualifiers. No over-explanation.',default_task_id:'P008',note:'Your judgement is earned. Say it like it is.'},
+  {week:'14',phase:'3',title:'No-fear audit',focus:'Three situations you currently avoid. What do you think will happen. Is that realistic.',default_task_id:'P015',note:'Name what you are protecting yourself from. Then examine it.'},
+  {week:'15',phase:'3',title:'Integration',focus:'Bring everything together. Where are you now compared to Week 1.',default_task_id:'P015',note:'What has shifted. What is still unfinished. What needs more time.'},
+  {week:'16',phase:'3',title:'The north star',focus:'Moving through a room with no fear. Not performing it — actually without it.',default_task_id:'P015',note:'You had this before. The events that installed the fear were never about who you are.'}
+]}
+
+function defaultTasks(){return[
+  {id:'P001',phase:'1',task_name:'The Three Sentences',description:'Each evening — what drained you, what gave energy, what your body was doing.',time:'5 mins · Daily'},
+  {id:'P002',phase:'1',task_name:'The Energy Map',description:'Track energy sources and drains for 7 days. Look for patterns.',time:'20 mins · Weekly'},
+  {id:'P003',phase:'1',task_name:'The Instinct Log',description:'Note one moment each day where you had an instinct and what you did with it.',time:'5 mins · Daily'},
+  {id:'P004',phase:'1',task_name:'Name the Feeling Precisely',description:'Once a day find the exact word for what you are feeling. Not fine or stressed — precise.',time:'3 mins · Daily'},
+  {id:'P005',phase:'1',task_name:'One Real Thing',description:'Say one genuinely real thing to one of your two identified safe people.',time:'When ready'},
+  {id:'P006',phase:'1',task_name:'The Fairness Inventory',description:'Three situations where you were treated unfairly. What happened. What you concluded. What is still running.',time:'30 mins'},
+  {id:'P007',phase:'1',task_name:'Map the Real Structure',description:'One week quietly mapping who actually holds influence. Not the org chart — the real one.',time:'15 mins · Ongoing'},
+  {id:'P008',phase:'2',task_name:'One Sentence Contribution',description:'In one meeting — contribute one sentence. Prepare it. Say it. Stop.',time:'In meeting'},
+  {id:'P009',phase:'2',task_name:'The Values List',description:'Write your actual values evidenced by what you chose when it cost you something.',time:'30 mins'},
+  {id:'P010',phase:'2',task_name:'The Stillness Practice',description:'One moment per day — consciously choose physical stillness. Feet flat, hands still.',time:'5 mins · Daily'},
+  {id:'P011',phase:'2',task_name:'The Small Bet',description:'Once a week act on one instinct in a low stakes situation before reasoning it away.',time:'Weekly'},
+  {id:'P012',phase:'3',task_name:'The Presence Walk',description:'Walk into a difficult room deliberately. Choose where to sit. Occupy your actual space.',time:'5 mins'},
+  {id:'P013',phase:'3',task_name:'The Rule Audit',description:'Five workplace rules. Which are load-bearing. Which are discretionary. Your approach to each.',time:'20 mins'},
+  {id:'P014',phase:'3',task_name:'The Non-Reaction',description:'One provocation this week. Pause one second longer than natural. Respond to content not tone.',time:'5 mins'},
+  {id:'P015',phase:'3',task_name:'The No-Fear Audit',description:'Three situations you currently avoid. What do you think will happen. Is that realistic.',time:'20 mins'}
+]}
+
+loadData();
+</script>
+</body>
+</html>
