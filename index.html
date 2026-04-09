@@ -634,15 +634,12 @@ function parseScope(raw) {
   const scope = {};
   const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
   codes.forEach(code => {
-    const re = new RegExp('##'+code+'##([\s\S]*?)(?=##[A-Z]+##|##SCOPE_END##|$)');
+    const re = new RegExp('##'+code+'##([\\s\\S]*?)(?=##[A-Z]+##|##SCOPE_END##|$)');
     const match = raw.match(re);
     if (match) {
       const block = match[1].trim();
-      const sumMatch = block.match(/SUMMARY:\s*(.+?)(?=
-EXP:|$)/s);
-      const expMatches = [...block.matchAll(/EXP:\s*(.+?)(?=
-EXP:|
-SUMMARY:|$)/gs)];
+      const sumMatch = block.match(/SUMMARY:\s*([\s\S]+?)(?=\nEXP:|$)/);
+      const expMatches = [...block.matchAll(/EXP:\s*([\s\S]+?)(?=\nEXP:|\nSUMMARY:|$)/g)];
       scope[code] = {
         summary: sumMatch ? sumMatch[1].trim() : '',
         exps: expMatches.map((m,i) => ({ id: i, text: m[1].trim(), state: 'active' }))
