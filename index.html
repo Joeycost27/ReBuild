@@ -369,7 +369,7 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
 
   <div class="sh">This Week</div>
   <div class="week-card">
-    <div class="wc-phase" id="wcPhase">Phase 1 — Orientation</div>
+    <div class="wc-phase" id="wcPhase">Phase 1 -- Orientation</div>
     <div class="wc-title" id="wcTitle">Loading...</div>
     <div class="wc-focus" id="wcFocus"></div>
     <div class="wc-note" id="wcNote"></div>
@@ -392,17 +392,17 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
         <button class="q-cycle" onclick="nextQ()">different →</button>
       </div>
       <div class="q-text" id="qText">Loading...</div>
-      <textarea id="s0" class="q-answer" placeholder="Your answer — or just sit with it..." rows="2"></textarea>
+      <textarea id="s0" class="q-answer" placeholder="Your answer -- or just sit with it..." rows="2"></textarea>
     </div>
 
     <div class="j-prompt"><em>1.</em> What drained me today</div>
-    <textarea id="s1" placeholder="One specific thing — not a general feeling..." rows="2"></textarea>
+    <textarea id="s1" placeholder="One specific thing -- not a general feeling..." rows="2"></textarea>
 
     <div class="j-prompt"><em>2.</em> What gave me even a small amount of energy</div>
     <textarea id="s2" placeholder="However small it was..." rows="2"></textarea>
 
     <div class="j-prompt"><em>3.</em> What my body was doing that my words were not saying</div>
-    <textarea id="s3" placeholder="Tension, flat, muddled — whatever is honest..." rows="2"></textarea>
+    <textarea id="s3" placeholder="Tension, flat, muddled -- whatever is honest..." rows="2"></textarea>
 
     <div class="btn-row">
       <button class="btn btn-save" onclick="saveEntry()">Save Entry</button>
@@ -521,7 +521,7 @@ const SCHEDULE = [
   {week:4,  phase:1, pname:'Orientation', title:'Reading the Room',         focus:'Map the real structure of your workplace. Not the org chart.', task:'P007', note:'Observe only. No action yet.'},
   {week:5,  phase:2, pname:'Foundations', title:'Visibility Begins',        focus:'One sentence in one meeting. That is the whole task.', task:'P008', note:'Prepare it before you go in. Say it. Stop.'},
   {week:6,  phase:2, pname:'Foundations', title:'Stillness Practice',       focus:'Physical stillness under pressure is trainable.', task:'P010', note:'One moment per day. Feet flat, hands still.'},
-  {week:7,  phase:2, pname:'Foundations', title:'Values — Real Ones',       focus:'Build your internal anchor from evidence, not aspiration.', task:'P009', note:'What did you choose when it actually cost you something?'},
+  {week:7,  phase:2, pname:'Foundations', title:'Values -- Real Ones',       focus:'Build your internal anchor from evidence, not aspiration.', task:'P009', note:'What did you choose when it actually cost you something?'},
   {week:8,  phase:2, pname:'Foundations', title:'Small Bets',               focus:'Act on one instinct per week before you talk yourself out of it.', task:'P011', note:'Low stakes. Just prove to yourself you can do it.'},
   {week:9,  phase:2, pname:'Foundations', title:'Anchor Under Pressure',    focus:'Use your values list when something pulls you off centre.', task:'P009', note:'Return to the list. What does it say about this situation?'},
   {week:10, phase:2, pname:'Foundations', title:'Presence Walk',            focus:'Walk into a difficult room deliberately. Occupy your actual space.', task:'P012', note:'Where you sit. How you move. This is physical and trainable.'},
@@ -546,21 +546,21 @@ const QUESTIONS = [
   {phase:1, q:'What are you still thinking about from today that you have not resolved?'},
   {phase:2, q:'Did you say what you actually thought today, or a safer version of it?'},
   {phase:2, q:'Was there a moment today where you held your ground, even quietly?'},
-  {phase:2, q:'Who had the most influence on how you felt today — and did you choose that?'},
+  {phase:2, q:'Who had the most influence on how you felt today -- and did you choose that?'},
   {phase:2, q:'What did you do today that you would do again?'},
-  {phase:2, q:'Was there a moment you adjusted yourself for the room — was that the right call?'},
+  {phase:2, q:'Was there a moment you adjusted yourself for the room -- was that the right call?'},
   {phase:2, q:'What did you know was right today before anyone else confirmed it?'},
   {phase:2, q:'Where did you feel most settled today?'},
   {phase:2, q:'What would you have done differently if you had trusted yourself from the start?'},
   {phase:2, q:'Did you take up the space you needed today, or less than that?'},
-  {phase:2, q:'What cost you most today — the situation, or your reaction to it?'},
+  {phase:2, q:'What cost you most today -- the situation, or your reaction to it?'},
   {phase:3, q:'Was there something today you let pass that you should have named?'},
-  {phase:3, q:'Where did you feel pressure today — and where did it actually come from?'},
+  {phase:3, q:'Where did you feel pressure today -- and where did it actually come from?'},
   {phase:3, q:'Did anything today confirm what you already knew about yourself?'},
   {phase:3, q:'What would the version of you with no fear have done differently today?'},
   {phase:3, q:'Was there a moment today where you were genuinely unafraid?'},
   {phase:3, q:'What did you protect today that did not need protecting?'},
-  {phase:3, q:'Who tried to set the tone today — and did you follow it?'},
+  {phase:3, q:'Who tried to set the tone today -- and did you follow it?'},
   {phase:3, q:'What did you say today that you meant?'},
 ];
 
@@ -886,13 +886,13 @@ function render() {
   }
 
   // week card
-  document.getElementById('wcPhase').textContent = `Phase ${p} — ${row.pname}`;
-  document.getElementById('wcTitle').textContent = `Week ${w} — ${row.title}`;
+  document.getElementById('wcPhase').textContent = `Phase ${p} -- ${row.pname}`;
+  document.getElementById('wcTitle').textContent = `Week ${w} -- ${row.title}`;
   document.getElementById('wcFocus').textContent = row.focus;
   document.getElementById('wcNote').textContent = row.note;
   document.getElementById('wcTask').textContent = `Task: ${row.task}`;
 
-  // question — filtered to current phase, advances each day
+  // question -- filtered to current phase, advances each day
   const phaseQs = QUESTIONS.filter(q => q.phase === p);
   const qi = s.qIdx % phaseQs.length;
   document.getElementById('qText').textContent = phaseQs[qi].q;
@@ -907,7 +907,7 @@ function renderEntries(s) {
   const el = document.getElementById('pastEntries');
   if(!s.entries.length){ el.style.display='none'; return; }
   el.style.display = 'block';
-  el.innerHTML = '<div class="past-label">Previous entries — '+s.entries.length+' total</div>';
+  el.innerHTML = '<div class="past-label">Previous entries -- '+s.entries.length+' total</div>';
   [...s.entries].reverse().slice(0,10).forEach(e => {
     const div = document.createElement('div');
     div.className = 'entry';
@@ -957,7 +957,7 @@ function clearJ() { ['s0','s1','s2','s3'].forEach(id=>document.getElementById(id
 function downloadLog() {
   const s=getState();
   if(!s.entries.length){ showToast('No entries yet'); return; }
-  let t = 'REBUILD PROGRAMME — PERSONAL LOG\n';
+  let t = 'REBUILD PROGRAMME -- PERSONAL LOG\n';
   t += 'Downloaded: '+new Date().toLocaleDateString('en-GB')+'\n';
   t += '━'.repeat(44)+'\n\n';
   s.entries.forEach(e=>{
