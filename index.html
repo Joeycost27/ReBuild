@@ -131,6 +131,203 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
   .page { padding: 16px; }
   .h-title { font-size: 28px; }
 }
+
+/* ── SCOPE VIEW (weeks 5-7) ─────────────────────────────────── */
+.scope-view { display:none; }
+.scope-view.on { display:block; }
+
+.bridge-card {
+  background: var(--ink);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 10px;
+  color: #f5ede0;
+}
+.bridge-card h3 {
+  font-family: 'Lora', serif;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.bridge-card p {
+  font-size: 13px;
+  color: rgba(245,237,224,0.6);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.paste-area {
+  width: 100%;
+  border: 1.5px solid rgba(184,114,42,0.4);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  color: #f5ede0;
+  resize: none;
+  background: rgba(255,255,255,0.05);
+  line-height: 1.5;
+  margin-bottom: 14px;
+  min-height: 120px;
+}
+.paste-area:focus { outline: none; border-color: var(--amber); }
+.paste-area::placeholder { color: rgba(245,237,224,0.25); }
+
+.scope-loaded {
+  font-size: 12px;
+  color: var(--amber);
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.heading-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+.hc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.hc-title {
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hc-code {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  background: var(--warm-bg);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.hc-toggle { font-size: 18px; color: var(--muted); transition: transform 0.2s; }
+.hc-toggle.open { transform: rotate(180deg); }
+.hc-summary {
+  font-size: 13px;
+  color: #5a5450;
+  line-height: 1.55;
+  margin-bottom: 14px;
+  font-style: italic;
+  border-left: 3px solid var(--border);
+  padding-left: 12px;
+}
+.hc-body { display: none; }
+.hc-body.open { display: block; }
+
+.exp-card {
+  background: var(--warm-bg);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  position: relative;
+}
+.exp-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin-bottom: 10px;
+  padding-right: 60px;
+}
+.exp-state {
+  display: flex;
+  gap: 6px;
+}
+.state-btn {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.15s;
+  color: var(--muted);
+}
+.state-btn.active-st { border-color: var(--amber); color: var(--amber); background: var(--amber-pale); }
+.state-btn.weak-st { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+.state-btn.closed-st { border-color: #9a9490; color: #9a9490; background: #f0ece6; }
+
+.daily-prompt-card {
+  background: var(--amber-pale);
+  border: 1px solid var(--amber-soft);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 10px;
+}
+.dp-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--amber);
+  margin-bottom: 6px;
+}
+.dp-heading {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.dp-exp {
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.dp-guidance {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #4a4540;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: white;
+  border-radius: 10px;
+  border-left: 3px solid var(--amber);
+}
+.dp-challenge {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.dp-next {
+  font-size: 12px;
+  color: var(--amber);
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  background: none;
+  font-family: 'Nunito', sans-serif;
+  padding: 6px 0;
+  margin-top: 8px;
+}
+.dp-next:hover { text-decoration: underline; }
+
+.add-exp-area {
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.add-exp-area textarea {
+  margin-bottom: 8px;
+}
+
 </style>
 </head>
 <body>
@@ -168,7 +365,7 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
   <div class="dots-row" id="dots"></div>
 </div>
 
-<div class="page">
+<div class="page" id="mainView">
 
   <div class="sh">This Week</div>
   <div class="week-card">
@@ -222,6 +419,85 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
     <button class="btn btn-reset" onclick="showReset()">Reset</button>
   </div>
 
+</div>
+
+
+<!-- ── SCOPE VIEW weeks 5-7 ─────────────────────────────────── -->
+<div class="scope-view" id="scopeView">
+<div class="page" style="padding-top:20px;max-width:640px;margin:0 auto;">
+
+  <div class="sh">Your Personal Scope</div>
+
+  <!-- Bridge paste or loaded state -->
+  <div id="scopePasteArea">
+    <div class="bridge-card">
+      <h3>Week 4 Bridge</h3>
+      <p>Download your log. Take it to your Claude project. Ask for your week 5 scope. Copy the block Claude gives you. Paste it below. The app loads everything automatically.</p>
+      <textarea class="paste-area" id="scopePaste" placeholder="Paste your ##SCOPE_START## block here..." rows="6"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-save" onclick="loadScope()">Load Scope</button>
+        <button class="btn btn-clear" onclick="clearScopePaste()">Clear</button>
+      </div>
+      <div class="scope-loaded" id="scopeLoaded" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Daily prompt from scope -->
+  <div id="dailyPromptArea" style="display:none;">
+    <div class="sh" style="margin-top:0;">Today's Focus</div>
+    <div class="daily-prompt-card" id="dailyPromptCard">
+      <div class="dp-label">From your scope</div>
+      <div class="dp-heading" id="dpHeading"></div>
+      <div class="dp-exp" id="dpExp"></div>
+      <div class="dp-guidance" id="dpGuidance"></div>
+      <div class="dp-challenge" id="dpChallenge"></div>
+      <button class="dp-next" onclick="nextPrompt()">different experience →</button>
+    </div>
+  </div>
+
+  <!-- Scope headings -->
+  <div id="scopeHeadings" style="display:none;">
+    <div class="sh">Your Nine Headings</div>
+    <div id="headingCards"></div>
+  </div>
+
+  <!-- Phase 2 daily log (same journal, continues) -->
+  <div id="p2Journal">
+    <div class="sh">Today's Entry</div>
+    <div class="journal">
+      <div class="j-date" id="jDate2"></div>
+      <div class="q-block">
+        <div class="q-label">
+          <span>Today's Question</span>
+          <button class="q-cycle" onclick="nextQ()">different →</button>
+        </div>
+        <div class="q-text" id="qText2">Loading...</div>
+        <textarea id="p2s0" class="q-answer" placeholder="Your answer..." rows="2"></textarea>
+      </div>
+      <div class="j-prompt"><em>1.</em> What drained me today</div>
+      <textarea id="p2s1" placeholder="One specific thing..." rows="2"></textarea>
+      <div class="j-prompt"><em>2.</em> What gave me even a small amount of energy</div>
+      <textarea id="p2s2" placeholder="However small..." rows="2"></textarea>
+      <div class="j-prompt"><em>3.</em> What my body was doing that my words were not saying</div>
+      <textarea id="p2s3" placeholder="Tension, flat, muddled -- whatever is honest..." rows="2"></textarea>
+      <div class="j-prompt"><em>4.</em> Which heading did today connect to -- one line</div>
+      <textarea id="p2s4" placeholder="e.g. CONF -- held back feedback in team meeting again..." rows="2"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-save" onclick="saveP2Entry()">Save Entry</button>
+        <button class="btn btn-dl" onclick="downloadLog()">&#8595; Download Log</button>
+        <button class="btn btn-clear" onclick="clearP2J()">Clear</button>
+      </div>
+      <div class="past-entries" id="p2PastEntries"></div>
+    </div>
+  </div>
+
+  <div class="sh">Programme</div>
+  <div class="bottom">
+    <div class="bottom-note">Thirty minutes a day.<br>Sixteen weeks.</div>
+    <button class="btn btn-reset" onclick="showReset()">Reset</button>
+  </div>
+
+</div>
 </div>
 
 <div class="overlay" id="resetModal">
@@ -304,12 +580,284 @@ function getState() {
 
 function phase(w) { return w<=4?1:w<=10?2:3; }
 
+
+// ── SCOPE DATA ─────────────────────────────────────────────────────────────
+const HEADING_META = {
+  CONF:  { name:'Confidence & Self-belief', icon:'💪',
+    guidance:'Self-doubt after institutional betrayal is a rational response, not a character flaw. The work here is separating your actual competence from the narrative that was imposed on you. Your judgement was right. The system punished you for it. Those are two different things.',
+    challenge:'Today, when you notice yourself second-guessing a decision you already made -- name it. Just say: there it is. Do not fix it. Just see it.' },
+  TRUST: { name:'Trust', icon:'🤝',
+    guidance:'Trust breaks at the specific point where someone chose their safety over your reality. That moment leaves a template. The work is not trusting everyone again -- it is identifying the difference between that template and this situation.',
+    challenge:'Today, notice one moment where you applied the old template to a new person. Was it accurate, or was it borrowed?' },
+  VIS:   { name:'Visibility & Presence', icon:'👁️',
+    guidance:'Withdrawal after being made an example of is protective. It worked. But it has a cost -- invisibility compounds. The work here is not performing presence. It is tolerating being seen in one small moment without bracing for impact.',
+    challenge:'Today, contribute one thing -- a question, an observation -- in a space where you would normally stay quiet. One. Then stop.' },
+  INST:  { name:'Institutional Navigation', icon:'🏛️',
+    guidance:'Institutions protect themselves first. You already know this. The work here is not bitterness about it -- it is reading the system clearly enough to move through it without being naive or consumed by it.',
+    challenge:'Today, identify one rule in your current workplace. Is it load-bearing or decorative? How do others treat it?' },
+  IDEN:  { name:'Identity & Values', icon:'🧭',
+    guidance:'You did the right thing. It cost you enormously. That is not a complicated story -- it is a clear one. The work here is rebuilding your sense of self on that evidence, not on what happened afterwards.',
+    challenge:'Write one thing you chose when it cost you something. That choice is evidence of who you actually are.' },
+  NERV:  { name:'Nervous System & Anxiety', icon:'⚡',
+    guidance:'Your nervous system learned that certain environments lead to loss. It is doing its job. The work is not silencing it -- it is giving it new evidence, slowly, that this environment is different.',
+    challenge:'Today, notice one physical signal -- tension, flatness, a jolt -- and simply name it. Not fix it. Name it.' },
+  ADHD:  { name:'Focus & Executive Function', icon:'🔦',
+    guidance:'ADHD under sustained stress is not the same as ADHD in a stable environment. Some of what you experienced as cognitive failure was your brain under extreme load. The work here is rebuilding conditions where your brain can actually function.',
+    challenge:'Today, do the hardest task first -- before anything else -- even for ten minutes. Your focus window is real. Use it.' },
+  REL:   { name:'Relationships & Connection', icon:'🌱',
+    guidance:'You identified two safe people. That is not nothing -- that is the beginning of the network. The work here is not rebuilding everything at once. It is making one genuine connection real.',
+    challenge:'Say one real thing to one of your two safe people today. Not small talk. Something true.' },
+  FEAR:  { name:'Fear & Avoidance', icon:'🚪',
+    guidance:'Most avoidance protects a future moment from a past pain. The work here is examining whether the fear is current or inherited -- whether what you think will happen is what actually will, or what already did.',
+    challenge:'Name one thing you are avoiding this week. What do you think will happen? What is the realistic probability?' }
+};
+
+function loadScope() {
+  const raw = document.getElementById('scopePaste').value.trim();
+  if (!raw) { showToast('Nothing pasted'); return; }
+  const s = getState();
+  const scope = parseScope(raw);
+  if (!scope || Object.keys(scope).length === 0) { showToast('Format not recognised -- check your paste'); return; }
+  s.scope = scope;
+  s.promptIdx = 0;
+  persist(s);
+  document.getElementById('scopePaste').value = '';
+  renderScope(s);
+  showToast('Scope loaded');
+}
+
+function clearScopePaste() {
+  document.getElementById('scopePaste').value = '';
+}
+
+function parseScope(raw) {
+  const scope = {};
+  const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
+  codes.forEach(code => {
+    const re = new RegExp('##'+code+'##([\s\S]*?)(?=##[A-Z]+##|##SCOPE_END##|$)');
+    const match = raw.match(re);
+    if (match) {
+      const block = match[1].trim();
+      const sumMatch = block.match(/SUMMARY:\s*(.+?)(?=
+EXP:|$)/s);
+      const expMatches = [...block.matchAll(/EXP:\s*(.+?)(?=
+EXP:|
+SUMMARY:|$)/gs)];
+      scope[code] = {
+        summary: sumMatch ? sumMatch[1].trim() : '',
+        exps: expMatches.map((m,i) => ({ id: i, text: m[1].trim(), state: 'active' }))
+      };
+    }
+  });
+  return scope;
+}
+
+function renderScope(s) {
+  const scope = s.scope;
+  if (!scope || Object.keys(scope).length === 0) return;
+
+  // Hide paste, show content
+  document.getElementById('scopePasteArea').style.display = 'none';
+  document.getElementById('dailyPromptArea').style.display = 'block';
+  document.getElementById('scopeHeadings').style.display = 'block';
+
+  const loaded = document.getElementById('scopeLoaded');
+  loaded.style.display = 'block';
+  loaded.textContent = Object.keys(scope).length + ' headings loaded';
+
+  // Daily prompt
+  renderDailyPrompt(s);
+
+  // Heading cards
+  const container = document.getElementById('headingCards');
+  container.innerHTML = '';
+  const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
+  codes.forEach(code => {
+    const data = scope[code];
+    if (!data) return;
+    const meta = HEADING_META[code];
+    const active = data.exps.filter(e=>e.state==='active').length;
+    const weakened = data.exps.filter(e=>e.state==='weakened').length;
+    const closed = data.exps.filter(e=>e.state==='closed').length;
+    const card = document.createElement('div');
+    card.className = 'heading-card';
+    card.innerHTML = `
+      <div class="hc-top" onclick="toggleHeading('${code}')">
+        <div class="hc-title">
+          <span>${meta.icon}</span>
+          <span>${meta.name}</span>
+          <span class="hc-code">${code}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-size:11px;color:var(--muted);">${active} active · ${weakened} weakened · ${closed} closed</div>
+          <div class="hc-toggle" id="toggle-${code}">&#8964;</div>
+        </div>
+      </div>
+      <div class="hc-summary">${data.summary}</div>
+      <div class="hc-body" id="body-${code}">
+        <div id="exps-${code}"></div>
+        <div class="add-exp-area">
+          <div class="j-prompt" style="margin-bottom:6px;">Add new experience</div>
+          <textarea id="newexp-${code}" placeholder="Describe a new experience to add to this heading..." rows="2"></textarea>
+          <button class="btn btn-save" style="font-size:13px;padding:8px 16px;" onclick="addExp('${code}')">Add</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+    renderExps(code, data.exps, s);
+  });
+}
+
+function renderExps(code, exps, s) {
+  const container = document.getElementById('exps-'+code);
+  if (!container) return;
+  container.innerHTML = '';
+  exps.forEach((exp, i) => {
+    const div = document.createElement('div');
+    div.className = 'exp-card';
+    div.innerHTML = `
+      <div class="exp-text">${exp.text}</div>
+      <div class="exp-state">
+        <button class="state-btn ${exp.state==='active'?'active-st':''}" onclick="setState('${code}',${i},'active')">Active</button>
+        <button class="state-btn ${exp.state==='weakened'?'weak-st':''}" onclick="setState('${code}',${i},'weakened')">Weakened</button>
+        <button class="state-btn ${exp.state==='closed'?'closed-st':''}" onclick="setState('${code}',${i},'closed')">Closed</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function toggleHeading(code) {
+  const body = document.getElementById('body-'+code);
+  const tog = document.getElementById('toggle-'+code);
+  const open = body.classList.toggle('open');
+  tog.classList.toggle('open', open);
+}
+
+function setState(code, idx, state) {
+  const s = getState();
+  if (s.scope && s.scope[code] && s.scope[code].exps[idx]) {
+    s.scope[code].exps[idx].state = state;
+    persist(s);
+    renderExps(code, s.scope[code].exps, s);
+    renderDailyPrompt(s);
+  }
+}
+
+function addExp(code) {
+  const ta = document.getElementById('newexp-'+code);
+  const text = ta.value.trim();
+  if (!text) { showToast('Nothing to add'); return; }
+  const s = getState();
+  if (!s.scope[code]) s.scope[code] = { summary:'', exps:[] };
+  s.scope[code].exps.push({ id: s.scope[code].exps.length, text, state:'active' });
+  persist(s);
+  ta.value = '';
+  renderExps(code, s.scope[code].exps, s);
+  showToast('Experience added');
+}
+
+function renderDailyPrompt(s) {
+  const scope = s.scope;
+  if (!scope) return;
+  // get all active experiences across all headings
+  const pool = [];
+  Object.entries(scope).forEach(([code, data]) => {
+    data.exps.filter(e=>e.state==='active').forEach(exp => {
+      pool.push({ code, exp });
+    });
+  });
+  if (!pool.length) {
+    document.getElementById('dailyPromptCard').innerHTML = '<div class="dp-label">All experiences closed or weakened</div><div class="dp-exp" style="font-style:normal;">You have worked through your active scope. Add new experiences or review your weakened ones.</div>';
+    return;
+  }
+  const idx = (s.promptIdx||0) % pool.length;
+  const item = pool[idx];
+  const meta = HEADING_META[item.code];
+  document.getElementById('dpHeading').textContent = meta.icon + ' ' + meta.name;
+  document.getElementById('dpExp').textContent = item.exp.text;
+  document.getElementById('dpGuidance').textContent = meta.guidance;
+  document.getElementById('dpChallenge').textContent = 'Challenge: ' + meta.challenge;
+}
+
+function nextPrompt() {
+  const s = getState();
+  s.promptIdx = (s.promptIdx||0)+1;
+  persist(s);
+  renderDailyPrompt(s);
+}
+
+// ── PHASE 2 JOURNAL ────────────────────────────────────────────────────────
+function saveP2Entry() {
+  const s0=document.getElementById('p2s0').value.trim();
+  const s1=document.getElementById('p2s1').value.trim();
+  const s2=document.getElementById('p2s2').value.trim();
+  const s3=document.getElementById('p2s3').value.trim();
+  const s4=document.getElementById('p2s4').value.trim();
+  if(!s0&&!s1&&!s2&&!s3&&!s4){ showToast('Nothing to save yet'); return; }
+  const s=getState();
+  const p = phase(s.week);
+  const phaseQs = QUESTIONS.filter(q=>q.phase===p);
+  const qi = s.qIdx % phaseQs.length;
+  s.entries.push({
+    date: new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
+    week: s.week, phase: 2,
+    q: phaseQs[qi].q,
+    s0, s1, s2, s3, s4
+  });
+  s.day = (s.day||1)+1;
+  s.qIdx = s.qIdx+1;
+  persist(s); clearP2J();
+  renderP2Entries(s);
+  showToast('Entry saved');
+}
+
+function clearP2J() { ['p2s0','p2s1','p2s2','p2s3','p2s4'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); }
+
+function renderP2Entries(s) {
+  const el = document.getElementById('p2PastEntries');
+  if (!el) return;
+  const p2entries = s.entries.filter(e=>e.phase===2||e.s4);
+  if(!p2entries.length){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML = '<div class="past-label">Phase 2 entries -- '+p2entries.length+' total</div>';
+  [...p2entries].reverse().slice(0,10).forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'entry';
+    let html = `<div class="e-date">${e.date} -- Week ${e.week}</div>`;
+    if(e.q && e.s0) html += `<div class="e-line e-q"><b>Q:</b> ${e.q}<br><b>A:</b> ${e.s0}</div>`;
+    if(e.s1) html += `<div class="e-line"><b>Drained:</b> ${e.s1}</div>`;
+    if(e.s2) html += `<div class="e-line"><b>Energy:</b> ${e.s2}</div>`;
+    if(e.s3) html += `<div class="e-line"><b>Body:</b> ${e.s3}</div>`;
+    if(e.s4) html += `<div class="e-line e-q"><b>Heading:</b> ${e.s4}</div>`;
+    div.innerHTML = html;
+    el.appendChild(div);
+  });
+}
+
 // ── RENDER ─────────────────────────────────────────────────────────────────
 function render() {
   const s = getState();
   const w = s.week;
   const p = phase(w);
   const row = SCHEDULE[w-1];
+
+  // Switch views based on week
+  const isScope = (w >= 5 && w <= 7);
+  document.getElementById('mainView').style.display = isScope ? 'none' : 'block';
+  document.getElementById('scopeView').classList.toggle('on', isScope);
+
+  // Update phase 2 journal date and question
+  if (isScope) {
+    const jDate2 = document.getElementById('jDate2');
+    if (jDate2) jDate2.textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const phaseQs = QUESTIONS.filter(q => q.phase === p);
+    const qi = s.qIdx % phaseQs.length;
+    const qText2 = document.getElementById('qText2');
+    if (qText2) qText2.textContent = phaseQs[qi].q;
+    renderScope(s);
+    renderP2Entries(s);
+  }
 
   document.getElementById('sW').textContent = w;
   document.getElementById('sP').textContent = p;
@@ -419,6 +967,7 @@ function downloadLog() {
     if(e.s1) t += `  Drained:  ${e.s1}\n`;
     if(e.s2) t += `  Energy:   ${e.s2}\n`;
     if(e.s3) t += `  Body:     ${e.s3}\n`;
+    if(e.s4) t += `  Heading:  ${e.s4}\n`;
     t += '\n';
   });
   const a=document.createElement('a');
