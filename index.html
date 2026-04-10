@@ -345,6 +345,10 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
     <div class="stat"><div class="stat-n" id="sP">1</div><div class="stat-l">Phase</div></div>
     <div class="stat"><div class="stat-n" id="sE">0</div><div class="stat-l">Entries</div></div>
     <div class="stat"><div class="stat-n" id="sD">1</div><div class="stat-l">Day</div></div>
+    <div class="stat" style="margin-left:auto;display:flex;flex-direction:row;align-items:center;gap:8px;">
+      <button class="wn-btn" onclick="changeWeek(-1)" style="border-color:rgba(255,255,255,0.15);">-</button>
+      <button class="wn-btn" onclick="changeWeek(1)" style="border-color:rgba(255,255,255,0.15);">+</button>
+    </div>
   </div>
 </div>
 
@@ -494,7 +498,10 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
   <div class="sh">Programme</div>
   <div class="bottom">
     <div class="bottom-note">Thirty minutes a day.<br>Sixteen weeks.</div>
-    <button class="btn btn-reset" onclick="showReset()">Reset</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-dl" onclick="downloadLog()">&#8595; Log</button>
+      <button class="btn btn-reset" onclick="showReset()">Reset</button>
+    </div>
   </div>
 
 </div>
