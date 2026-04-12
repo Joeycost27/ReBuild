@@ -328,6 +328,32 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
   margin-bottom: 8px;
 }
 
+
+/* -- RESPONSE BANK CARDS -------------------------------------------------- */
+.rb-group { margin-bottom:20px; }
+.rb-group-label {
+  font-size:11px; font-weight:700; text-transform:uppercase;
+  letter-spacing:0.8px; margin-bottom:10px;
+}
+.rb-card {
+  border-radius:12px; padding:12px 14px; margin-bottom:8px;
+  border-left:3px solid var(--border);
+  transition: opacity 0.2s;
+}
+.rb-used { opacity:0.45; }
+.rb-id {
+  font-size:10px; font-weight:700; letter-spacing:0.5px;
+  margin-bottom:5px; text-transform:uppercase;
+}
+.rb-text { font-size:13px; line-height:1.5; color:var(--ink); margin-bottom:8px; }
+.rb-btn {
+  font-size:11px; font-weight:600; padding:4px 12px;
+  border-radius:6px; border:1.5px solid var(--border);
+  background:transparent; cursor:pointer; color:var(--muted);
+  font-family:'Nunito',sans-serif; transition:all 0.15s;
+}
+.rb-btn:hover { border-color:var(--muted); color:var(--ink); }
+
 </style>
 </head>
 <body>
@@ -417,6 +443,13 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
     <div class="past-entries" id="pastEntries"></div>
   </div>
 
+
+  <!-- RESPONSE BANK -->
+  <div class="sh" style="margin-top:28px;">Response Bank</div>
+  <div class="journal" id="rbSection" style="padding:20px;">
+    <div style="color:var(--muted);font-size:13px;">Loading...</div>
+  </div>
+
   <div class="sh">Programme</div>
   <div class="bottom">
     <div class="bottom-note">Thirty minutes a day.<br>Sixteen weeks.</div>
@@ -433,7 +466,7 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
   <div class="sh">Your Personal Scope</div>
 
   <!-- Bridge paste or loaded state -->
-  <div id="scopePasteArea">
+  <div id="scopePasteArea" style="display:none;">
     <div class="bridge-card">
       <h3>Week 4 Bridge</h3>
       <p>Download your log. Take it to your Claude project. Ask for your week 5 scope. Copy the block Claude gives you. Paste it below. The app loads everything automatically.</p>
@@ -493,6 +526,13 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
       </div>
       <div class="past-entries" id="p2PastEntries"></div>
     </div>
+  </div>
+
+
+  <!-- RESPONSE BANK -->
+  <div class="sh" style="margin-top:28px;">Response Bank</div>
+  <div class="journal" id="rbSection" style="padding:20px;">
+    <div style="color:var(--muted);font-size:13px;">Loading...</div>
   </div>
 
   <div class="sh">Programme</div>
@@ -640,18 +680,34 @@ function clearScopePaste() {
 function parseScope(raw) {
   const scope = {};
   const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
+  // Strip bold markers, extra asterisks, any decoration around ## codes
+  const cleaned = raw.replace(/\*+/g, '').replace(/_{2,}/g, '');
   codes.forEach(code => {
-    const re = new RegExp('##'+code+'##([\\s\\S]*?)(?=##[A-Z]+##|##SCOPE_END##|$)');
-    const match = raw.match(re);
-    if (match) {
-      const block = match[1].trim();
-      const sumMatch = block.match(/SUMMARY:\s*([\s\S]+?)(?=\nEXP:|$)/);
-      const expMatches = [...block.matchAll(/EXP:\s*([\s\S]+?)(?=\nEXP:|\nSUMMARY:|$)/g)];
-      scope[code] = {
-        summary: sumMatch ? sumMatch[1].trim() : '',
-        exps: expMatches.map((m,i) => ({ id: i, text: m[1].trim(), state: 'active' }))
-      };
+    // Find content between this code marker and the next marker
+    const start = cleaned.indexOf('##'+code+'##');
+    if (start === -1) return;
+    const after = cleaned.indexOf('##', start + code.length + 4);
+    const block = (after > -1 ? cleaned.slice(start + code.length + 4, after) : cleaned.slice(start + code.length + 4)).trim();
+    // Extract SUMMARY -- everything after SUMMARY: up to first EXP: or end
+    const sumStart = block.indexOf('SUMMARY:');
+    const expStart = block.indexOf('EXP:');
+    let summary = '';
+    if (sumStart > -1) {
+      const sumEnd = expStart > -1 ? expStart : block.length;
+      summary = block.slice(sumStart + 8, sumEnd).trim();
     }
+    // Extract all EXP entries
+    const exps = [];
+    let searchFrom = 0;
+    while (true) {
+      const eIdx = block.indexOf('EXP:', searchFrom);
+      if (eIdx === -1) break;
+      const nextE = block.indexOf('EXP:', eIdx + 4);
+      const text = (nextE > -1 ? block.slice(eIdx + 4, nextE) : block.slice(eIdx + 4)).trim();
+      if (text) exps.push({ id: exps.length, text, state: 'active' });
+      searchFrom = eIdx + 4;
+    }
+    scope[code] = { summary, exps };
   });
   return scope;
 }
@@ -839,6 +895,100 @@ function renderP2Entries(s) {
   });
 }
 
+
+// -- RESPONSE BANK ---------------------------------------------------------
+const RB = {
+  R:[
+    {id:'R01',text:'You do not have to respond right now. The pause is yours.'},
+    {id:'R02',text:'The reaction they want from you is the only power they have. Do not give it.'},
+    {id:'R03',text:'This feeling is information. It is not an instruction.'},
+    {id:'R04',text:'You have been here before and it passed. It will pass again.'},
+    {id:'R05',text:'What is actually being said -- not the tone, the content.'},
+    {id:'R06',text:'Your body is reacting to a pattern, not necessarily this moment.'},
+    {id:'R07',text:'You do not need this room to confirm you. You already know.'},
+    {id:'R08',text:'One breath. Feet flat. Hands still. You are still here.'},
+    {id:'R09',text:'The thing you are about to say -- is it for you or for them?'},
+    {id:'R10',text:'Slow down. The room will wait. That waiting is not weakness.'},
+  ],
+  C:[
+    {id:'C01',text:'When challenged on your judgement: say it once clearly, do not repeat it, let it stand.'},
+    {id:'C02',text:'When someone is dismissive: brief, factual, move on. Give them nothing to escalate with.'},
+    {id:'C03',text:'When the group is going wrong: name it simply, offer an alternative, do not lecture.'},
+    {id:'C04',text:'When you feel pressure to agree: I need to think about that -- buys time without capitulating.'},
+    {id:'C05',text:'When someone takes credit for your work: name it once in the room, calmly, then move on.'},
+    {id:'C06',text:'When a meeting goes off track: can we come back to the main point -- no explanation needed.'},
+    {id:'C07',text:'When you are put on the spot: slow your pace, take a breath, answer what was actually asked.'},
+    {id:'C08',text:'When someone raises their voice: lower yours. The contrast shifts the power immediately.'},
+    {id:'C09',text:'When being talked over: stop speaking, wait, then continue from exactly where you stopped.'},
+    {id:'C10',text:'When you want to walk away: finish your sentence first. Leaving mid-thought hands them the moment.'},
+    {id:'C11',text:'When approval is withheld unreasonably: document it, name it once to the right person, stop chasing.'},
+    {id:'C12',text:'When a colleague lets you down: note it, adjust your expectations, do not broadcast it.'},
+  ],
+  W:[
+    {id:'W01',text:'You held your ground on a recommendation under pressure. You were right. That is evidence.'},
+    {id:'W02',text:'You named something difficult to a safe person. The world did not end.'},
+    {id:'W03',text:'You paused before reacting and the moment passed without damage.'},
+    {id:'W04',text:'You walked into a difficult room and stayed present. That took more than it looked.'},
+    {id:'W05',text:'You said the one sentence and stopped. The silence worked.'},
+    {id:'W06',text:'You noticed the physical signal before it overtook you. That is progress.'},
+    {id:'W07',text:'You chose the right thing when it cost you something. That is who you actually are.'},
+    {id:'W08',text:'You read the room correctly before anyone else did. Your perception is intact.'},
+    {id:'W09',text:'You contributed something real and let it land without immediately qualifying it.'},
+    {id:'W10',text:'You identified a safe person and used that safety for something genuine.'},
+  ],
+  L:[
+    {id:'L01',text:'The fear was installed by specific events. It is not a personality trait. It is not permanent.'},
+    {id:'L02',text:'Withdrawal after being made an example of is rational, not weakness. It protected you. It has served its purpose.'},
+    {id:'L03',text:'Your nervous system is still running an older threat assessment. It is doing its job. The job has changed.'},
+    {id:'L04',text:'Self-trust is not confidence. It is acting on your own data before someone else confirms it.'},
+    {id:'L05',text:'The people who stayed quiet when it mattered told you something precise about themselves. Not about you.'},
+    {id:'L06',text:'Institutional systems protect themselves first. That is not personal. It is structural. You can navigate it without being consumed by it.'},
+    {id:'L07',text:'The body keeps the score. Physical signals are real data, not overreaction.'},
+    {id:'L08',text:'Visibility is rebuilt through small consistent moments, not one impressive performance.'},
+    {id:'L09',text:'Understanding a system you dislike is not the same as endorsing it. You can see it clearly and still choose who you are inside it.'},
+    {id:'L10',text:'The version of you with no fear is not a different person. It is you without the installed pattern. It was always there.'},
+    {id:'L11',text:'Most of what felt like a judgement on your capability was a judgement on your willingness to stay quiet. Two different things.'},
+    {id:'L12',text:'Doing the right thing and being rewarded for it are not the same event. You did the right thing. That part is already true.'},
+  ]
+};
+
+const RB_LABELS = {R:'Reminders', C:'Controlled Responses', W:'Wins', L:'Learning'};
+const RB_COLORS = {R:'var(--amber)', C:'var(--phase3)', W:'var(--green)', L:'var(--phase2)'};
+const RB_PALE   = {R:'var(--amber-pale)', C:'#eef0fa', W:'var(--green-soft)', L:'var(--amber-pale)'};
+
+function renderResponseBank() {
+  const el = document.getElementById('rbSection');
+  if (!el) return;
+  const s = getState();
+  const used = s.rbUsed || {};
+  let html = '';
+  ['R','C','W','L'].forEach(type => {
+    html += '<div class="rb-group">';
+    html += '<div class="rb-group-label" style="color:'+RB_COLORS[type]+'">'+RB_LABELS[type]+'</div>';
+    RB[type].forEach(card => {
+      const isUsed = used[card.id];
+      const bg = isUsed ? '#f5f5f5' : RB_PALE[type];
+      const bc = RB_COLORS[type];
+      html += '<div class="rb-card'+(isUsed?' rb-used':'')+'" style="border-left-color:'+bc+';background:'+bg+';">';
+      html += '<div class="rb-id" style="color:'+bc+'">'+card.id+'</div>';
+      html += '<div class="rb-text">'+(isUsed?'<s>':'')+card.text+(isUsed?'</s>':'')+'</div>';
+      html += '<button class="rb-btn" data-rbid="'+card.id+'" onclick="toggleRBUsed(this.dataset.rbid)">'+(isUsed?'Unmark':'Used today')+'</button>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function toggleRBUsed(id) {
+  const s = getState();
+  if (!s.rbUsed) s.rbUsed = {};
+  s.rbUsed[id] = !s.rbUsed[id];
+  persist(s);
+  renderResponseBank();
+}
+
+
 // -- RENDER -----------------------------------------------------------------
 function render() {
   const s = getState();
@@ -859,8 +1009,12 @@ function render() {
     const qi = s.qIdx % phaseQs.length;
     const qText2 = document.getElementById('qText2');
     if (qText2) qText2.textContent = phaseQs[qi].q;
+    // Show paste area only if no scope loaded yet
+    const pa = document.getElementById('scopePasteArea');
+    if (pa) pa.style.display = (s.scope && Object.keys(s.scope).length > 0) ? 'none' : 'block';
     renderScope(s);
     renderP2Entries(s);
+    renderResponseBank();
   }
 
   document.getElementById('sW').textContent = w;
