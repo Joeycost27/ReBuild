@@ -443,13 +443,6 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
     <div class="past-entries" id="pastEntries"></div>
   </div>
 
-
-  <!-- RESPONSE BANK -->
-  <div class="sh" style="margin-top:28px;">Response Bank</div>
-  <div class="journal" id="rbSection" style="padding:20px;">
-    <div style="color:var(--muted);font-size:13px;">Loading...</div>
-  </div>
-
   <div class="sh">Programme</div>
   <div class="bottom">
     <div class="bottom-note">Thirty minutes a day.<br>Sixteen weeks.</div>
@@ -714,12 +707,18 @@ function parseScope(raw) {
 
 function renderScope(s) {
   const scope = s.scope;
-  if (!scope || Object.keys(scope).length === 0) return;
-
-  // Hide paste, show content
-  document.getElementById('scopePasteArea').style.display = 'none';
-  document.getElementById('dailyPromptArea').style.display = 'block';
-  document.getElementById('scopeHeadings').style.display = 'block';
+  // Show paste area if no scope, hide if scope exists
+  const pa = document.getElementById('scopePasteArea');
+  if (!scope || Object.keys(scope).length === 0) {
+    if (pa) pa.style.display = 'block';
+    return;
+  }
+  // Scope exists -- hide paste, show everything
+  if (pa) pa.style.display = 'none';
+  const dpa = document.getElementById('dailyPromptArea');
+  const sh = document.getElementById('scopeHeadings');
+  if (dpa) dpa.style.display = 'block';
+  if (sh) sh.style.display = 'block';
 
   const loaded = document.getElementById('scopeLoaded');
   loaded.style.display = 'block';
@@ -775,14 +774,17 @@ function renderExps(code, exps, s) {
   exps.forEach((exp, i) => {
     const div = document.createElement('div');
     div.className = 'exp-card';
-    div.innerHTML = `
-      <div class="exp-text">${exp.text}</div>
-      <div class="exp-state">
-        <button class="state-btn ${exp.state==='active'?'active-st':''}" onclick="setState('${code}',${i},'active')">Active</button>
-        <button class="state-btn ${exp.state==='weakened'?'weak-st':''}" onclick="setState('${code}',${i},'weakened')">Weakened</button>
-        <button class="state-btn ${exp.state==='closed'?'closed-st':''}" onclick="setState('${code}',${i},'closed')">Closed</button>
-      </div>
-    `;
+    const st = exp.state || 'active';
+    const closed = st === 'closed';
+    div.style.opacity = closed ? '0.45' : '1';
+    div.innerHTML =
+      '<div class="exp-text" style="'+(closed?'text-decoration:line-through;color:#999;':'')+'">'
+      + exp.text + '</div>'
+      + '<div class="exp-state">'
+      + '<button class="state-btn '+(st==='active'?'active-st':'')+'" data-code="'+code+'" data-idx="'+i+'" data-st="active" onclick="setState(this.dataset.code,+this.dataset.idx,this.dataset.st)">Active</button>'
+      + '<button class="state-btn '+(st==='weakened'?'weak-st':'')+'" data-code="'+code+'" data-idx="'+i+'" data-st="weakened" onclick="setState(this.dataset.code,+this.dataset.idx,this.dataset.st)">Weakened</button>'
+      + '<button class="state-btn '+(st==='closed'?'closed-st':'')+'" data-code="'+code+'" data-idx="'+i+'" data-st="closed" onclick="setState(this.dataset.code,+this.dataset.idx,this.dataset.st)">Closed</button>'
+      + '</div>';
     container.appendChild(div);
   });
 }
@@ -1009,9 +1011,7 @@ function render() {
     const qi = s.qIdx % phaseQs.length;
     const qText2 = document.getElementById('qText2');
     if (qText2) qText2.textContent = phaseQs[qi].q;
-    // Show paste area only if no scope loaded yet
-    const pa = document.getElementById('scopePasteArea');
-    if (pa) pa.style.display = (s.scope && Object.keys(s.scope).length > 0) ? 'none' : 'block';
+    // renderScope handles paste area visibility
     renderScope(s);
     renderP2Entries(s);
     renderResponseBank();
