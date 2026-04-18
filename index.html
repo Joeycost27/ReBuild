@@ -354,6 +354,73 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
 }
 .rb-btn:hover { border-color:var(--muted); color:var(--ink); }
 
+
+/* -- EXPERIENCE CARDS ---------------------------------------------------- */
+.exp-card-main {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.exp-heading-tag {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--amber); margin-bottom: 8px;
+}
+.exp-text-main {
+  font-size: 14px; line-height: 1.6; color: var(--ink);
+  margin-bottom: 16px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.pills-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--muted); margin-bottom: 8px;
+}
+.pills-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.pill {
+  font-size: 12px; font-weight: 600; padding: 5px 12px;
+  border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--warm-bg); color: var(--muted);
+  cursor: pointer; transition: all 0.15s; font-family: 'Nunito', sans-serif;
+}
+.pill.on { color: white; border-color: transparent; }
+.pill-reveal {
+  border-radius: 12px; padding: 12px 14px;
+  margin-bottom: 8px; border-left: 3px solid var(--border);
+  background: var(--warm-bg); display: none;
+}
+.pill-reveal.on { display: block; }
+.pr-tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; margin-bottom: 6px;
+}
+.pr-main { font-size: 13px; line-height: 1.55; color: var(--ink); margin-bottom: 8px; }
+.pr-sub { font-size: 12px; line-height: 1.5; color: var(--muted); margin-bottom: 3px; }
+.pr-sub b { color: var(--ink); font-weight: 600; }
+.pr-framework { font-size: 10px; color: var(--muted); font-style: italic; margin-top: 6px; }
+.obs-section {
+  border-top: 1px solid var(--border); padding-top: 14px; margin-top: 8px;
+}
+.obs-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--muted); margin-bottom: 10px;
+}
+.obs-field { margin-bottom: 12px; }
+.obs-prompt { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+.obs-prompt em { color: var(--amber); font-style: normal; }
+.exp-state-row {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-top: 14px;
+}
+.state-pills { display: flex; gap: 6px; }
+.state-pill {
+  font-size: 12px; font-weight: 600; padding: 5px 14px;
+  border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--warm-bg); color: var(--muted);
+  cursor: pointer; transition: all 0.15s; font-family: 'Nunito', sans-serif;
+}
+.state-label { font-size: 11px; color: var(--muted); font-weight: 600; }
+
 </style>
 </head>
 <body>
@@ -472,23 +539,15 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
     </div>
   </div>
 
-  <!-- Daily prompt from scope -->
-  <div id="dailyPromptArea" style="display:none;">
-    <div class="sh" style="margin-top:0;">Today's Focus</div>
-    <div class="daily-prompt-card" id="dailyPromptCard">
-      <div class="dp-label">From your scope</div>
-      <div class="dp-heading" id="dpHeading"></div>
-      <div class="dp-exp" id="dpExp"></div>
-      <div class="dp-guidance" id="dpGuidance"></div>
-      <div class="dp-challenge" id="dpChallenge"></div>
-      <button class="dp-next" onclick="nextPrompt()">different experience →</button>
+  <!-- Experience cards -->
+  <div id="expCardArea" style="display:none;">
+    <div class="sh" style="margin-top:0;">Your Experiences</div>
+    <div id="expNav" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <button class="btn btn-ghost" onclick="navExp(-1)" style="font-size:13px;padding:7px 14px;">← prev</button>
+      <div id="expCounter" style="font-size:12px;color:var(--muted);font-weight:600;"></div>
+      <button class="btn btn-ghost" onclick="navExp(1)" style="font-size:13px;padding:7px 14px;">next →</button>
     </div>
-  </div>
-
-  <!-- Scope headings -->
-  <div id="scopeHeadings" style="display:none;">
-    <div class="sh">Your Nine Headings</div>
-    <div id="headingCards"></div>
+    <div id="expCard"></div>
   </div>
 
   <!-- Phase 2 daily log (same journal, continues) -->
@@ -521,12 +580,6 @@ textarea.q-answer:focus { border-color: var(--amber); background: white; }
     </div>
   </div>
 
-
-  <!-- RESPONSE BANK -->
-  <div class="sh" style="margin-top:28px;">Response Bank</div>
-  <div class="journal" id="rbSection" style="padding:20px;">
-    <div style="color:var(--muted);font-size:13px;">Loading...</div>
-  </div>
 
   <div class="sh">Programme</div>
   <div class="bottom">
@@ -622,373 +675,244 @@ function phase(w) { return w<=4?1:w<=10?2:3; }
 
 
 // -- SCOPE DATA -------------------------------------------------------------
-const HEADING_META = {
-  CONF:  { name:'Confidence & Self-belief', icon:'[C]',
-    guidance:'Self-doubt after institutional betrayal is a rational response, not a character flaw. The work here is separating your actual competence from the narrative that was imposed on you. Your judgement was right. The system punished you for it. Those are two different things.',
-    challenge:'Today, when you notice yourself second-guessing a decision you already made -- name it. Just say: there it is. Do not fix it. Just see it.' },
-  TRUST: { name:'Trust', icon:'[T]',
-    guidance:'Trust breaks at the specific point where someone chose their safety over your reality. That moment leaves a template. The work is not trusting everyone again -- it is identifying the difference between that template and this situation.',
-    challenge:'Today, notice one moment where you applied the old template to a new person. Was it accurate, or was it borrowed?' },
-  VIS:   { name:'Visibility & Presence', icon:'[V]',
-    guidance:'Withdrawal after being made an example of is protective. It worked. But it has a cost -- invisibility compounds. The work here is not performing presence. It is tolerating being seen in one small moment without bracing for impact.',
-    challenge:'Today, contribute one thing -- a question, an observation -- in a space where you would normally stay quiet. One. Then stop.' },
-  INST:  { name:'Institutional Navigation', icon:'[I]',
-    guidance:'Institutions protect themselves first. You already know this. The work here is not bitterness about it -- it is reading the system clearly enough to move through it without being naive or consumed by it.',
-    challenge:'Today, identify one rule in your current workplace. Is it load-bearing or decorative? How do others treat it?' },
-  IDEN:  { name:'Identity & Values', icon:'[D]',
-    guidance:'You did the right thing. It cost you enormously. That is not a complicated story -- it is a clear one. The work here is rebuilding your sense of self on that evidence, not on what happened afterwards.',
-    challenge:'Write one thing you chose when it cost you something. That choice is evidence of who you actually are.' },
-  NERV:  { name:'Nervous System & Anxiety', icon:'[N]',
-    guidance:'Your nervous system learned that certain environments lead to loss. It is doing its job. The work is not silencing it -- it is giving it new evidence, slowly, that this environment is different.',
-    challenge:'Today, notice one physical signal -- tension, flatness, a jolt -- and simply name it. Not fix it. Name it.' },
-  ADHD:  { name:'Focus & Executive Function', icon:'[A]',
-    guidance:'ADHD under sustained stress is not the same as ADHD in a stable environment. Some of what you experienced as cognitive failure was your brain under extreme load. The work here is rebuilding conditions where your brain can actually function.',
-    challenge:'Today, do the hardest task first -- before anything else -- even for ten minutes. Your focus window is real. Use it.' },
-  REL:   { name:'Relationships & Connection', icon:'[R]',
-    guidance:'You identified two safe people. That is not nothing -- that is the beginning of the network. The work here is not rebuilding everything at once. It is making one genuine connection real.',
-    challenge:'Say one real thing to one of your two safe people today. Not small talk. Something true.' },
-  FEAR:  { name:'Fear & Avoidance', icon:'[F]',
-    guidance:'Most avoidance protects a future moment from a past pain. The work here is examining whether the fear is current or inherited -- whether what you think will happen is what actually will, or what already did.',
-    challenge:'Name one thing you are avoiding this week. What do you think will happen? What is the realistic probability?' }
+
+// -- TAG DEFINITIONS (16 tags, framework-backed) --------------------------
+const TAGS = {
+  'Held ground':    { color:'#1D9E75', bg:'#E1F5EE', fw:'ACT / Schema Therapy',
+    main:'You stayed with your position under pressure.',
+    eg:'e.g. did not change your answer when the room pushed back -- or held the recommendation for five months without capitulating.',
+    action:'Say it once clearly. Do not repeat it. Let it stand.',
+    recovery:'Note what it cost and what it proved. Both matter.' },
+  'Named it':       { color:'#185FA5', bg:'#E6F1FB', fw:'CBT / Cognitive reappraisal',
+    main:'You identified what was actually happening -- precisely.',
+    eg:'e.g. not jealousy -- ranked feeling. The word matters because the wrong word sends you in the wrong direction.',
+    action:'Say the precise word, not the approximate one.',
+    recovery:'Write it down before the moment blurs.' },
+  'Did not react':  { color:'#3B6D11', bg:'#EAF3DE', fw:'Polyvagal Theory',
+    main:'You paused instead of responding automatically.',
+    eg:'e.g. read the email, felt the heat, closed it and waited 24 hours before responding.',
+    action:'One breath. Respond to content not tone.',
+    recovery:'What did you keep by not giving it away?' },
+  'Read room':      { color:'#534AB7', bg:'#EEEDFE', fw:'Institutional literacy',
+    main:'You spotted something before it was confirmed.',
+    eg:'e.g. knew the email was a positioning move before anyone named it -- verbal rapport then written record that excluded your position.',
+    action:'File it. Do not act yet.',
+    recovery:'Were you right? Note it. That is evidence your perception is intact.' },
+  'Trust break':    { color:'#185FA5', bg:'#E6F1FB', fw:'Attachment theory / Schema Therapy',
+    main:'Something or someone confirmed the pattern that trust leads to loss.',
+    eg:'e.g. verbal agreement then contradicting written record copied to bosses. The pattern ran exactly as the nervous system predicted.',
+    action:'Document it quietly. Do not broadcast.',
+    recovery:'Adjust expectations for this person. That is not cynicism -- it is accuracy.' },
+  'Body signal':    { color:'#3B6D11', bg:'#EAF3DE', fw:'Polyvagal Theory / Somatic therapy',
+    main:'Your nervous system flagged something before your brain had words for it.',
+    eg:'e.g. chest thump, fire lit immediately, tension before the check-in that turned out fine.',
+    action:'Name it specifically -- fire, not anger. Chest, not panic.',
+    recovery:'What was the body actually reacting to -- the moment or an older pattern?' },
+  'Stayed quiet':   { color:'#854F0B', bg:'#FAEEDA', fw:'ACT / Behavioural avoidance',
+    main:'You did not say what you knew.',
+    eg:'e.g. let something pass in a meeting -- avoided the office on days bosses were not in.',
+    action:'Was this strategic silence or protective withdrawal? Know which.',
+    recovery:'Is there still a moment to name it cleanly, or has it passed?' },
+  'Used script':    { color:'#1D9E75', bg:'#E1F5EE', fw:'CBT / Controlled response',
+    main:'You used a controlled response in the moment.',
+    eg:'e.g. said it once and stopped. Did not repeat it. Did not justify it.',
+    action:'Note exactly what you said and what followed.',
+    recovery:'What would you do differently -- or was it exactly right?' },
+  'Pattern spotted':{ color:'#534AB7', bg:'#EEEDFE', fw:'Schema Therapy / ACT',
+    main:'You recognised a recurring dynamic -- not just a one-off.',
+    eg:'e.g. same drain appearing across multiple weeks. Three colleagues going cold on the same days -- coordination suspected.',
+    action:'Name the pattern, not just the incident.',
+    recovery:'Does this need action or just acknowledgement?' },
+  'Still open':     { color:'#5F5E5A', bg:'#F1EFE8', fw:'ACT / Grief processing',
+    main:'This experience is not resolved. It is still live.',
+    eg:'e.g. the career loss was managed not grieved. Reopened three years later by one casual sentence.',
+    action:'Leave it active. Do not force closure.',
+    recovery:'What would closure actually look like? Not forgiveness -- just not carrying it automatically.' },
+  'Win noted':      { color:'#1D9E75', bg:'#E1F5EE', fw:'Positive psychology / ACT',
+    main:'Something went right and you saw it clearly.',
+    eg:'e.g. chest thump came, sat on it, let it pass without spiralling. First documented interruption of the automatic sequence.',
+    action:'Write what made it possible -- specifically.',
+    recovery:'This is evidence. Keep it.' },
+  'Cost named':     { color:'#854F0B', bg:'#FAEEDA', fw:'Grief processing / ACT',
+    main:'You identified what something took from you.',
+    eg:'e.g. a career, colleagues who did not call back, three years of carrying it without a proper name.',
+    action:'Do not minimise it.',
+    recovery:'Naming the cost is not dwelling -- it is the first step past it.' },
+  'Avoidance':      { color:'#993C1D', bg:'#FAECE7', fw:'CBT / Behavioural activation',
+    main:'You did not do the thing you knew you should.',
+    eg:'e.g. avoided the office on days the bosses were not in. Did not initiate the conversation.',
+    action:'Name what you were protecting yourself from.',
+    recovery:'Is that threat real now or inherited from a different situation?' },
+  'Catastrophising':{ color:'#993C1D', bg:'#FAECE7', fw:'CBT',
+    main:'The feared outcome did not happen. The anticipation was the damage.',
+    eg:'e.g. morning anxiety before the office -- managers are sound, nothing has actually happened. The system was scanning for a threat that did not come.',
+    action:'Name the specific fear. Then name the actual evidence for it.',
+    recovery:'What did the anticipation cost -- and was that cost necessary?' },
+  'Rumination':     { color:'#5F5E5A', bg:'#F1EFE8', fw:'CBT / Polyvagal Theory',
+    main:'You are still running the scenario after it ended.',
+    eg:'e.g. rehearsed the line manager conversation at least a dozen times. Prepared a defence for a challenge that never came.',
+    action:'Write it down once fully. Then close the page.',
+    recovery:'What is the rehearsal actually protecting -- the outcome or the feeling of control?' },
+  'Repair':         { color:'#1D9E75', bg:'#E1F5EE', fw:'Attachment theory / ACT',
+    main:'Something broken was partially restored.',
+    eg:'e.g. coffee with former colleague on a depleted day -- listed in energy column. Small genuine connection lifted even a low day.',
+    action:'Note what made this feel safe.',
+    recovery:'Can you create one more of these deliberately?' },
 };
 
-function loadScope() {
-  const raw = document.getElementById('scopePaste').value.trim();
-  if (!raw) { showToast('Nothing pasted'); return; }
+// Per-heading observation examples
+const OBS_EXAMPLES = {
+  CONF:  { what:'e.g. roads colleague contradicted me in writing after verbal agreement -- I held my recommendation and did not reply for 24 hours.',
+           shift:'e.g. I knew I was right before anyone confirmed it. Three months ago I would have second-guessed myself immediately.',
+           live:'e.g. still waiting for manager to back the position formally -- that outcome is unresolved.' },
+  TRUST: { what:'e.g. colleague casually mentioned seeing the IT guy -- three years surfaced in one sentence. Fire lit immediately.',
+           shift:'e.g. I noticed the fire and named it -- did not act from it. That is different from before.',
+           live:'e.g. the grief from the career loss is still not fully processed. It reopens too easily.' },
+  VIS:   { what:'e.g. avoided the office on two days when neither manager was in -- named it honestly afterwards.',
+           shift:'e.g. I recognised the avoidance in real time rather than after the fact.',
+           live:'e.g. still not asking questions back in conversation -- door stays on my side.' },
+  INST:  { what:'e.g. spotted the positioning move in the email immediately -- verbal rapport then written record.',
+           shift:'e.g. I documented it without reacting. The biweekly log was already running.',
+           live:'e.g. still absorbing the two managers contradicting each other as my friction daily.' },
+  IDEN:  { what:'e.g. realised the drive to be exceptional was reactive -- running away from ranked low, not toward something chosen.',
+           shift:'e.g. this is the most significant door opened in the programme so far. I can see it clearly now.',
+           live:'e.g. still building what desire-driven looks like. That is new territory.' },
+  NERV:  { what:'e.g. chest thump when colleague was selected for the event -- ranked sensor fired before I had words for it.',
+           shift:'e.g. sat on it and let it pass without spiralling. First time I have documented interrupting the automatic sequence.',
+           live:'e.g. morning anticipation before the office is still running -- nothing has actually happened to cause it.' },
+  ADHD:  { what:'e.g. cannot initiate -- household tasks, walks, surveys. Once started momentum follows. First step is the whole barrier.',
+           shift:'e.g. naming it as initiation failure rather than laziness has changed how I respond to it.',
+           live:'e.g. social media pull when willpower is depleted -- not in control of it yet.' },
+  REL:   { what:'e.g. coffee with former colleague on a depleted day -- listed in energy column. One genuine connection lifted everything.',
+           shift:'e.g. I noticed the lift and named it rather than letting it pass without recognition.',
+           live:'e.g. still not initiating at work -- cursor myself for it but have not changed it yet.' },
+  FEAR:  { what:'e.g. roads situation -- named the fear clearly: will my manager back me or side with the roads team.',
+           shift:'e.g. stated the limit in the same breath as the fear. Either I get respected or I assess my options.',
+           live:'e.g. consultancy direction is taking shape but still feels fragile -- not fully mine yet.' },
+};
+
+// -- EXP CARD SYSTEM -------------------------------------------------------
+let expList = [];
+let expIdx = 0;
+
+function buildExpList(scope) {
+  expList = [];
+  const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
+  codes.forEach(code => {
+    if (!scope[code]) return;
+    (scope[code].exps || []).forEach((exp, i) => {
+      expList.push({ code, expIdx: i, exp });
+    });
+  });
+}
+
+function navExp(dir) {
+  expIdx = (expIdx + dir + expList.length) % expList.length;
+  renderExpCard();
+}
+
+function renderExpCard() {
   const s = getState();
-  const scope = parseScope(raw);
-  if (!scope || Object.keys(scope).length === 0) { showToast('Format not recognised -- check your paste'); return; }
-  s.scope = scope;
-  s.promptIdx = 0;
-  persist(s);
-  document.getElementById('scopePaste').value = '';
-  renderScope(s);
-  showToast('Scope loaded');
-}
+  if (!expList.length) return;
+  const item = expList[expIdx];
+  const code = item.code;
+  const exp = item.exp;
+  const obs = exp.obs || { what:'', shift:'', live:'' };
+  const state = exp.state || 'open';
+  const tags = exp.tags || [];
+  const ex = OBS_EXAMPLES[code] || OBS_EXAMPLES.CONF;
 
-function clearScopePaste() {
-  document.getElementById('scopePaste').value = '';
-}
+  document.getElementById('expCounter').textContent = (expIdx+1) + ' of ' + expList.length + ' experiences';
 
-function parseScope(raw) {
-  const scope = {};
-  const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
-  // Strip bold markers, extra asterisks, any decoration around ## codes
-  const cleaned = raw.replace(/\*+/g, '').replace(/_{2,}/g, '');
-  codes.forEach(code => {
-    // Find content between this code marker and the next marker
-    const start = cleaned.indexOf('##'+code+'##');
-    if (start === -1) return;
-    const after = cleaned.indexOf('##', start + code.length + 4);
-    const block = (after > -1 ? cleaned.slice(start + code.length + 4, after) : cleaned.slice(start + code.length + 4)).trim();
-    // Extract SUMMARY -- everything after SUMMARY: up to first EXP: or end
-    const sumStart = block.indexOf('SUMMARY:');
-    const expStart = block.indexOf('EXP:');
-    let summary = '';
-    if (sumStart > -1) {
-      const sumEnd = expStart > -1 ? expStart : block.length;
-      summary = block.slice(sumStart + 8, sumEnd).trim();
-    }
-    // Extract all EXP entries
-    const exps = [];
-    let searchFrom = 0;
-    while (true) {
-      const eIdx = block.indexOf('EXP:', searchFrom);
-      if (eIdx === -1) break;
-      const nextE = block.indexOf('EXP:', eIdx + 4);
-      const text = (nextE > -1 ? block.slice(eIdx + 4, nextE) : block.slice(eIdx + 4)).trim();
-      if (text) exps.push({ id: exps.length, text, state: 'active' });
-      searchFrom = eIdx + 4;
-    }
-    scope[code] = { summary, exps };
-  });
-  return scope;
-}
+  const stateColors = { open:'var(--muted)', progressing:'#185FA5', closed:'#1D9E75' };
+  const tagKeys = Object.keys(TAGS);
 
-function renderScope(s) {
-  const scope = s.scope;
-  // Show paste area if no scope, hide if scope exists
-  const pa = document.getElementById('scopePasteArea');
-  if (!scope || Object.keys(scope).length === 0) {
-    if (pa) pa.style.display = 'block';
-    return;
-  }
-  // Scope exists -- hide paste, show everything
-  if (pa) pa.style.display = 'none';
-  const dpa = document.getElementById('dailyPromptArea');
-  const sh = document.getElementById('scopeHeadings');
-  if (dpa) dpa.style.display = 'block';
-  if (sh) sh.style.display = 'block';
+  let pillsHtml = tagKeys.map(t => {
+    const on = tags.includes(t);
+    const tdata = TAGS[t];
+    return '<button class="pill'+(on?' on':'')+'" style="'+(on?'background:'+tdata.color+';border-color:'+tdata.color+';color:white;':'')+'" data-tag="'+t.replace(/'/g,"&#39;")+'" onclick="toggleTag(this)">'+t+'</button>';
+  }).join('');
 
-  const loaded = document.getElementById('scopeLoaded');
-  loaded.style.display = 'block';
-  loaded.textContent = Object.keys(scope).length + ' headings loaded';
-
-  // Daily prompt
-  renderDailyPrompt(s);
-
-  // Heading cards
-  const container = document.getElementById('headingCards');
-  container.innerHTML = '';
-  const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
-  codes.forEach(code => {
-    const data = scope[code];
-    if (!data) return;
-    const meta = HEADING_META[code];
-    const active = data.exps.filter(e=>e.state==='active').length;
-    const weakened = data.exps.filter(e=>e.state==='weakened').length;
-    const closed = data.exps.filter(e=>e.state==='closed').length;
-    const card = document.createElement('div');
-    card.className = 'heading-card';
-    card.innerHTML = `
-      <div class="hc-top" onclick="toggleHeading('${code}')">
-        <div class="hc-title">
-          <span>${meta.icon}</span>
-          <span>${meta.name}</span>
-          <span class="hc-code">${code}</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div style="font-size:11px;color:var(--muted);">${active} active . ${weakened} weakened . ${closed} closed</div>
-          <div class="hc-toggle" id="toggle-${code}">&#8964;</div>
-        </div>
-      </div>
-      <div class="hc-summary">${data.summary}</div>
-      <div class="hc-body" id="body-${code}">
-        <div id="exps-${code}"></div>
-        <div class="add-exp-area">
-          <div class="j-prompt" style="margin-bottom:6px;">Add new experience</div>
-          <textarea id="newexp-${code}" placeholder="Describe a new experience to add to this heading..." rows="2"></textarea>
-          <button class="btn btn-save" style="font-size:13px;padding:8px 16px;" onclick="addExp('${code}')">Add</button>
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
-    renderExps(code, data.exps, s);
-  });
-}
-
-function renderExps(code, exps, s) {
-  const container = document.getElementById('exps-'+code);
-  if (!container) return;
-  container.innerHTML = '';
-  exps.forEach((exp, i) => {
-    const div = document.createElement('div');
-    div.className = 'exp-card';
-    const st = exp.state || 'active';
-    const closed = st === 'closed';
-    div.style.opacity = closed ? '0.45' : '1';
-    div.innerHTML =
-      '<div class="exp-text" style="'+(closed?'text-decoration:line-through;color:#999;':'')+'">'
-      + exp.text + '</div>'
-      + '<div class="exp-state">'
-      + '<button class="state-btn '+(st==='active'?'active-st':'')+'" data-code="'+code+'" data-idx="'+i+'" data-st="active" onclick="setState(this.dataset.code,+this.dataset.idx,this.dataset.st)">Active</button>'
-      + '<button class="state-btn '+(st==='weakened'?'weak-st':'')+'" data-code="'+code+'" data-idx="'+i+'" data-st="weakened" onclick="setState(this.dataset.code,+this.dataset.idx,this.dataset.st)">Weakened</button>'
-      + '<button class="state-btn '+(st==='closed'?'closed-st':'')+'" data-code="'+code+'" data-idx="'+i+'" data-st="closed" onclick="setState(this.dataset.code,+this.dataset.idx,this.dataset.st)">Closed</button>'
+  let revealsHtml = tagKeys.map(t => {
+    const on = tags.includes(t);
+    const tdata = TAGS[t];
+    return '<div class="pill-reveal'+(on?' on':'')+'" id="reveal-'+t.replace(/[^a-z]/gi,'_')+'" style="border-left-color:'+tdata.color+';background:'+tdata.bg+'15;">'
+      + '<div class="pr-tag" style="color:'+tdata.color+'">'+t+'</div>'
+      + '<div class="pr-main">'+tdata.main+'</div>'
+      + '<div class="pr-sub" style="font-style:italic;color:var(--muted);margin-bottom:8px;">'+tdata.eg+'</div>'
+      + '<div class="pr-sub"><b>In the moment:</b> '+tdata.action+'</div>'
+      + '<div class="pr-sub"><b>Recovery:</b> '+tdata.recovery+'</div>'
+      + '<div class="pr-framework">Framework: '+tdata.fw+'</div>'
       + '</div>';
-    container.appendChild(div);
-  });
+  }).join('');
+
+  document.getElementById('expCard').innerHTML =
+    '<div class="exp-card-main">'
+    + '<div class="exp-heading-tag">'+code+' -- '+getHName(code)+'</div>'
+    + '<div class="exp-text-main">'+exp.text+'</div>'
+    + '<div class="pills-label">What fired here -- tap to explore</div>'
+    + '<div class="pills-wrap">'+pillsHtml+'</div>'
+    + revealsHtml
+    + '<div class="obs-section">'
+    + '<div class="obs-label">Your observations</div>'
+    + '<div class="obs-field"><div class="obs-prompt"><em>1.</em> What actually happened</div>'
+    + '<textarea rows="2" placeholder="'+ex.what+'" data-field="what" onchange="saveObs(this.dataset.field,this.value)" style="margin-bottom:0;">'+obs.what+'</textarea></div>'
+    + '<div class="obs-field" style="margin-top:10px;"><div class="obs-prompt"><em>2.</em> What shifted for me</div>'
+    + '<textarea rows="2" placeholder="'+ex.shift+'" data-field="shift" onchange="saveObs(this.dataset.field,this.value)" style="margin-bottom:0;">'+obs.shift+'</textarea></div>'
+    + '<div class="obs-field" style="margin-top:10px;"><div class="obs-prompt"><em>3.</em> What is still live</div>'
+    + '<textarea rows="2" placeholder="'+ex.live+'" data-field="live" onchange="saveObs(this.dataset.field,this.value)" style="margin-bottom:0;">'+obs.live+'</textarea></div>'
+    + '<div class="exp-state-row">'
+    + '<div class="state-pills">'
+    + '<button class="state-pill" data-st="progressing" onclick="saveState(this)" style="'+(state==='progressing'?'background:#E6F1FB;color:#185FA5;border-color:#185FA5;':'')+'>Progressing</button>'
+    + '<button class="state-pill" data-st="closed" onclick="saveState(this)" style="'+(state==='closed'?'background:#E1F5EE;color:#1D9E75;border-color:#1D9E75;':'')+'>Closed</button>'
+    + '</div>'
+    + '<div class="state-label" style="color:'+stateColors[state]+'">'+state.charAt(0).toUpperCase()+state.slice(1)+'</div>'
+    + '</div></div></div>';
 }
 
-function toggleHeading(code) {
-  const body = document.getElementById('body-'+code);
-  const tog = document.getElementById('toggle-'+code);
-  const open = body.classList.toggle('open');
-  tog.classList.toggle('open', open);
+function getHName(code) {
+  const names = {CONF:'Confidence',TRUST:'Trust',VIS:'Visibility',INST:'Institutional',IDEN:'Identity',NERV:'Nervous System',ADHD:'Focus',REL:'Relationships',FEAR:'Fear'};
+  return names[code] || code;
 }
 
-function setState(code, idx, state) {
+function toggleTag(btn) {
+  const t = btn.dataset.tag;
   const s = getState();
-  if (s.scope && s.scope[code] && s.scope[code].exps[idx]) {
-    s.scope[code].exps[idx].state = state;
-    persist(s);
-    renderExps(code, s.scope[code].exps, s);
-    renderDailyPrompt(s);
-  }
-}
-
-function addExp(code) {
-  const ta = document.getElementById('newexp-'+code);
-  const text = ta.value.trim();
-  if (!text) { showToast('Nothing to add'); return; }
-  const s = getState();
-  if (!s.scope[code]) s.scope[code] = { summary:'', exps:[] };
-  s.scope[code].exps.push({ id: s.scope[code].exps.length, text, state:'active' });
+  const item = expList[expIdx];
+  if (!item) return;
+  const exp = s.scope[item.code].exps[item.expIdx];
+  if (!exp.tags) exp.tags = [];
+  const idx = exp.tags.indexOf(t);
+  if (idx > -1) exp.tags.splice(idx, 1);
+  else exp.tags.push(t);
   persist(s);
-  ta.value = '';
-  renderExps(code, s.scope[code].exps, s);
-  showToast('Experience added');
+  expList[expIdx].exp = exp;
+  renderExpCard();
 }
 
-function renderDailyPrompt(s) {
-  const scope = s.scope;
-  if (!scope) return;
-  // get all active experiences across all headings
-  const pool = [];
-  Object.entries(scope).forEach(([code, data]) => {
-    data.exps.filter(e=>e.state==='active').forEach(exp => {
-      pool.push({ code, exp });
-    });
-  });
-  if (!pool.length) {
-    document.getElementById('dailyPromptCard').innerHTML = '<div class="dp-label">All experiences closed or weakened</div><div class="dp-exp" style="font-style:normal;">You have worked through your active scope. Add new experiences or review your weakened ones.</div>';
-    return;
-  }
-  const idx = (s.promptIdx||0) % pool.length;
-  const item = pool[idx];
-  const meta = HEADING_META[item.code];
-  document.getElementById('dpHeading').textContent = meta.icon + ' ' + meta.name;
-  document.getElementById('dpExp').textContent = item.exp.text;
-  document.getElementById('dpGuidance').textContent = meta.guidance;
-  document.getElementById('dpChallenge').textContent = 'Challenge: ' + meta.challenge;
-}
-
-function nextPrompt() {
+function saveObs(field, val) {
   const s = getState();
-  s.promptIdx = (s.promptIdx||0)+1;
+  const item = expList[expIdx];
+  if (!item) return;
+  const exp = s.scope[item.code].exps[item.expIdx];
+  if (!exp.obs) exp.obs = {};
+  exp.obs[field] = val;
   persist(s);
-  renderDailyPrompt(s);
+  expList[expIdx].exp = exp;
 }
 
-// -- PHASE 2 JOURNAL --------------------------------------------------------
-function saveP2Entry() {
-  const s0=document.getElementById('p2s0').value.trim();
-  const s1=document.getElementById('p2s1').value.trim();
-  const s2=document.getElementById('p2s2').value.trim();
-  const s3=document.getElementById('p2s3').value.trim();
-  const s4=document.getElementById('p2s4').value.trim();
-  if(!s0&&!s1&&!s2&&!s3&&!s4){ showToast('Nothing to save yet'); return; }
-  const s=getState();
-  const p = phase(s.week);
-  const phaseQs = QUESTIONS.filter(q=>q.phase===p);
-  const qi = s.qIdx % phaseQs.length;
-  s.entries.push({
-    date: new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
-    week: s.week, phase: 2,
-    q: phaseQs[qi].q,
-    s0, s1, s2, s3, s4
-  });
-  s.day = (s.day||1)+1;
-  s.qIdx = s.qIdx+1;
-  persist(s); clearP2J();
-  renderP2Entries(s);
-  showToast('Entry saved');
-}
-
-function clearP2J() { ['p2s0','p2s1','p2s2','p2s3','p2s4'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); }
-
-function renderP2Entries(s) {
-  const el = document.getElementById('p2PastEntries');
-  if (!el) return;
-  const p2entries = s.entries.filter(e=>e.phase===2||e.s4);
-  if(!p2entries.length){ el.style.display='none'; return; }
-  el.style.display='block';
-  el.innerHTML = '<div class="past-label">Phase 2 entries -- '+p2entries.length+' total</div>';
-  [...p2entries].reverse().slice(0,10).forEach(e => {
-    const div = document.createElement('div');
-    div.className = 'entry';
-    let html = `<div class="e-date">${e.date} -- Week ${e.week}</div>`;
-    if(e.q && e.s0) html += `<div class="e-line e-q"><b>Q:</b> ${e.q}<br><b>A:</b> ${e.s0}</div>`;
-    if(e.s1) html += `<div class="e-line"><b>Drained:</b> ${e.s1}</div>`;
-    if(e.s2) html += `<div class="e-line"><b>Energy:</b> ${e.s2}</div>`;
-    if(e.s3) html += `<div class="e-line"><b>Body:</b> ${e.s3}</div>`;
-    if(e.s4) html += `<div class="e-line e-q"><b>Heading:</b> ${e.s4}</div>`;
-    div.innerHTML = html;
-    el.appendChild(div);
-  });
-}
-
-
-// -- RESPONSE BANK ---------------------------------------------------------
-const RB = {
-  R:[
-    {id:'R01',text:'You do not have to respond right now. The pause is yours.'},
-    {id:'R02',text:'The reaction they want from you is the only power they have. Do not give it.'},
-    {id:'R03',text:'This feeling is information. It is not an instruction.'},
-    {id:'R04',text:'You have been here before and it passed. It will pass again.'},
-    {id:'R05',text:'What is actually being said -- not the tone, the content.'},
-    {id:'R06',text:'Your body is reacting to a pattern, not necessarily this moment.'},
-    {id:'R07',text:'You do not need this room to confirm you. You already know.'},
-    {id:'R08',text:'One breath. Feet flat. Hands still. You are still here.'},
-    {id:'R09',text:'The thing you are about to say -- is it for you or for them?'},
-    {id:'R10',text:'Slow down. The room will wait. That waiting is not weakness.'},
-  ],
-  C:[
-    {id:'C01',text:'When challenged on your judgement: say it once clearly, do not repeat it, let it stand.'},
-    {id:'C02',text:'When someone is dismissive: brief, factual, move on. Give them nothing to escalate with.'},
-    {id:'C03',text:'When the group is going wrong: name it simply, offer an alternative, do not lecture.'},
-    {id:'C04',text:'When you feel pressure to agree: I need to think about that -- buys time without capitulating.'},
-    {id:'C05',text:'When someone takes credit for your work: name it once in the room, calmly, then move on.'},
-    {id:'C06',text:'When a meeting goes off track: can we come back to the main point -- no explanation needed.'},
-    {id:'C07',text:'When you are put on the spot: slow your pace, take a breath, answer what was actually asked.'},
-    {id:'C08',text:'When someone raises their voice: lower yours. The contrast shifts the power immediately.'},
-    {id:'C09',text:'When being talked over: stop speaking, wait, then continue from exactly where you stopped.'},
-    {id:'C10',text:'When you want to walk away: finish your sentence first. Leaving mid-thought hands them the moment.'},
-    {id:'C11',text:'When approval is withheld unreasonably: document it, name it once to the right person, stop chasing.'},
-    {id:'C12',text:'When a colleague lets you down: note it, adjust your expectations, do not broadcast it.'},
-  ],
-  W:[
-    {id:'W01',text:'You held your ground on a recommendation under pressure. You were right. That is evidence.'},
-    {id:'W02',text:'You named something difficult to a safe person. The world did not end.'},
-    {id:'W03',text:'You paused before reacting and the moment passed without damage.'},
-    {id:'W04',text:'You walked into a difficult room and stayed present. That took more than it looked.'},
-    {id:'W05',text:'You said the one sentence and stopped. The silence worked.'},
-    {id:'W06',text:'You noticed the physical signal before it overtook you. That is progress.'},
-    {id:'W07',text:'You chose the right thing when it cost you something. That is who you actually are.'},
-    {id:'W08',text:'You read the room correctly before anyone else did. Your perception is intact.'},
-    {id:'W09',text:'You contributed something real and let it land without immediately qualifying it.'},
-    {id:'W10',text:'You identified a safe person and used that safety for something genuine.'},
-  ],
-  L:[
-    {id:'L01',text:'The fear was installed by specific events. It is not a personality trait. It is not permanent.'},
-    {id:'L02',text:'Withdrawal after being made an example of is rational, not weakness. It protected you. It has served its purpose.'},
-    {id:'L03',text:'Your nervous system is still running an older threat assessment. It is doing its job. The job has changed.'},
-    {id:'L04',text:'Self-trust is not confidence. It is acting on your own data before someone else confirms it.'},
-    {id:'L05',text:'The people who stayed quiet when it mattered told you something precise about themselves. Not about you.'},
-    {id:'L06',text:'Institutional systems protect themselves first. That is not personal. It is structural. You can navigate it without being consumed by it.'},
-    {id:'L07',text:'The body keeps the score. Physical signals are real data, not overreaction.'},
-    {id:'L08',text:'Visibility is rebuilt through small consistent moments, not one impressive performance.'},
-    {id:'L09',text:'Understanding a system you dislike is not the same as endorsing it. You can see it clearly and still choose who you are inside it.'},
-    {id:'L10',text:'The version of you with no fear is not a different person. It is you without the installed pattern. It was always there.'},
-    {id:'L11',text:'Most of what felt like a judgement on your capability was a judgement on your willingness to stay quiet. Two different things.'},
-    {id:'L12',text:'Doing the right thing and being rewarded for it are not the same event. You did the right thing. That part is already true.'},
-  ]
-};
-
-const RB_LABELS = {R:'Reminders', C:'Controlled Responses', W:'Wins', L:'Learning'};
-const RB_COLORS = {R:'var(--amber)', C:'var(--phase3)', W:'var(--green)', L:'var(--phase2)'};
-const RB_PALE   = {R:'var(--amber-pale)', C:'#eef0fa', W:'var(--green-soft)', L:'var(--amber-pale)'};
-
-function renderResponseBank() {
-  const el = document.getElementById('rbSection');
-  if (!el) return;
+function saveState(btn) {
+  const st = btn.dataset.st;
   const s = getState();
-  const used = s.rbUsed || {};
-  let html = '';
-  ['R','C','W','L'].forEach(type => {
-    html += '<div class="rb-group">';
-    html += '<div class="rb-group-label" style="color:'+RB_COLORS[type]+'">'+RB_LABELS[type]+'</div>';
-    RB[type].forEach(card => {
-      const isUsed = used[card.id];
-      const bg = isUsed ? '#f5f5f5' : RB_PALE[type];
-      const bc = RB_COLORS[type];
-      html += '<div class="rb-card'+(isUsed?' rb-used':'')+'" style="border-left-color:'+bc+';background:'+bg+';">';
-      html += '<div class="rb-id" style="color:'+bc+'">'+card.id+'</div>';
-      html += '<div class="rb-text">'+(isUsed?'<s>':'')+card.text+(isUsed?'</s>':'')+'</div>';
-      html += '<button class="rb-btn" data-rbid="'+card.id+'" onclick="toggleRBUsed(this.dataset.rbid)">'+(isUsed?'Unmark':'Used today')+'</button>';
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-  el.innerHTML = html;
-}
-
-function toggleRBUsed(id) {
-  const s = getState();
-  if (!s.rbUsed) s.rbUsed = {};
-  s.rbUsed[id] = !s.rbUsed[id];
+  const item = expList[expIdx];
+  if (!item) return;
+  const exp = s.scope[item.code].exps[item.expIdx];
+  exp.state = (exp.state === st) ? 'open' : st;
   persist(s);
-  renderResponseBank();
+  expList[expIdx].exp = exp;
+  renderExpCard();
 }
+
 
 
 // -- RENDER -----------------------------------------------------------------
@@ -1014,7 +938,6 @@ function render() {
     // renderScope handles paste area visibility
     renderScope(s);
     renderP2Entries(s);
-    renderResponseBank();
   }
 
   document.getElementById('sW').textContent = w;
@@ -1128,6 +1051,28 @@ function downloadLog() {
     if(e.s4) t += `  Heading:  ${e.s4}\n`;
     t += '\n';
   });
+  // Append scope closure report
+  const sc = s.scope;
+  if (sc) {
+    t += '\n' + '='.repeat(44) + '\n';
+    t += 'SCOPE REPORT -- EXPERIENCE STATES\n';
+    t += '='.repeat(44) + '\n\n';
+    const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
+    codes.forEach(code => {
+      if (!sc[code]) return;
+      t += code + ' -- ' + (sc[code].summary||'') + '\n';
+      (sc[code].exps||[]).forEach((exp,i) => {
+        t += '  [' + (exp.state||'open').toUpperCase() + '] ' + exp.text + '\n';
+        if (exp.tags && exp.tags.length) t += '  Tags: ' + exp.tags.join(', ') + '\n';
+        if (exp.obs) {
+          if (exp.obs.what)  t += '  What happened: ' + exp.obs.what + '\n';
+          if (exp.obs.shift) t += '  What shifted: ' + exp.obs.shift + '\n';
+          if (exp.obs.live)  t += '  Still live: ' + exp.obs.live + '\n';
+        }
+        t += '\n';
+      });
+    });
+  }
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));
   a.download='rebuild_log_'+new Date().toISOString().slice(0,10)+'.txt';
