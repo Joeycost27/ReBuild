@@ -830,13 +830,15 @@ function renderExpCard() {
   let pillsHtml = tagKeys.map(t => {
     const on = tags.includes(t);
     const tdata = TAGS[t];
-    return '<button class="pill'+(on?' on':'')+'" style="'+(on?'background:'+tdata.color+';border-color:'+tdata.color+';color:white;':'')+'" data-tag="'+t.replace(/'/g,"&#39;")+'" onclick="toggleTag(this)">'+t+'</button>';
+    const tid = t.replace(/[^a-zA-Z0-9]/g,'_');
+    return '<button class="pill'+(on?' on':'')+'" style="'+(on?'background:'+tdata.color+';border-color:'+tdata.color+';color:white;':'')+'" data-tag="'+t.replace(/'/g,"&#39;")+'" data-tid="'+tid+'" onclick="toggleTag(this)">'+t+'</button>';
   }).join('');
 
   let revealsHtml = tagKeys.map(t => {
     const on = tags.includes(t);
     const tdata = TAGS[t];
-    return '<div class="pill-reveal'+(on?' on':'')+'" id="reveal-'+t.replace(/[^a-z]/gi,'_')+'" style="border-left-color:'+tdata.color+';background:'+tdata.bg+'15;">'
+    const tid = t.replace(/[^a-zA-Z0-9]/g,'_');
+    return '<div class="pill-reveal'+(on?' on':'')+'" id="reveal-'+tid+'" style="border-left-color:'+tdata.color+';background:'+tdata.bg+'15;">'
       + '<div class="pr-tag" style="color:'+tdata.color+'">'+t+'</div>'
       + '<div class="pr-main">'+tdata.main+'</div>'
       + '<div class="pr-sub" style="font-style:italic;color:var(--muted);margin-bottom:8px;">'+tdata.eg+'</div>'
@@ -877,6 +879,7 @@ function getHName(code) {
 
 function toggleTag(btn) {
   const t = btn.dataset.tag;
+  const tid = btn.dataset.tid || t.replace(/[^a-zA-Z0-9]/g,'_');
   const s = getState();
   const item = expList[expIdx];
   if (!item) return;
@@ -887,7 +890,18 @@ function toggleTag(btn) {
   else exp.tags.push(t);
   persist(s);
   expList[expIdx].exp = exp;
-  renderExpCard();
+  // Toggle reveal inline without full re-render
+  const el = document.getElementById('reveal-'+tid);
+  const pill = btn;
+  const on = exp.tags.includes(t);
+  if (el) { el.className = 'pill-reveal' + (on ? ' on' : ''); }
+  const tdata = TAGS[t];
+  if (tdata) {
+    pill.className = 'pill' + (on ? ' on' : '');
+    pill.style.background = on ? tdata.color : '';
+    pill.style.borderColor = on ? tdata.color : '';
+    pill.style.color = on ? 'white' : '';
+  }
 }
 
 function saveObs(field, val) {
