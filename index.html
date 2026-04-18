@@ -915,6 +915,122 @@ function saveState(btn) {
 
 
 
+
+// -- SCOPE LOAD & PARSE ---------------------------------------------------
+function clearScopePaste() {
+  const el = document.getElementById('scopePaste');
+  if (el) el.value = '';
+}
+
+function loadScope() {
+  const raw = document.getElementById('scopePaste').value.trim();
+  if (!raw) { showToast('Nothing pasted'); return; }
+  const scope = parseScope(raw);
+  if (!scope || Object.keys(scope).length === 0) { showToast('Format not recognised -- check paste'); return; }
+  const s = getState();
+  s.scope = scope;
+  persist(s);
+  document.getElementById('scopePaste').value = '';
+  renderScope(s);
+  showToast('Scope loaded');
+}
+
+function parseScope(raw) {
+  const scope = {};
+  const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
+  const cleaned = raw.replace(/[*]+/g, '').replace(/[_]{2,}/g, '');
+  codes.forEach(code => {
+    const start = cleaned.indexOf('##'+code+'##');
+    if (start === -1) return;
+    const after = cleaned.indexOf('##', start + code.length + 4);
+    const block = (after > -1 ? cleaned.slice(start + code.length + 4, after) : cleaned.slice(start + code.length + 4)).trim();
+    const sumStart = block.indexOf('SUMMARY:');
+    const expStart = block.indexOf('EXP:');
+    let summary = '';
+    if (sumStart > -1) {
+      const sumEnd = expStart > -1 ? expStart : block.length;
+      summary = block.slice(sumStart + 8, sumEnd).trim();
+    }
+    const exps = [];
+    let searchFrom = 0;
+    while (true) {
+      const eIdx = block.indexOf('EXP:', searchFrom);
+      if (eIdx === -1) break;
+      const nextE = block.indexOf('EXP:', eIdx + 4);
+      const text = (nextE > -1 ? block.slice(eIdx + 4, nextE) : block.slice(eIdx + 4)).trim();
+      if (text) exps.push({ id: exps.length, text, state: 'open', tags: [], obs: {} });
+      searchFrom = eIdx + 4;
+    }
+    scope[code] = { summary, exps };
+  });
+  return scope;
+}
+
+function renderScope(s) {
+  const scope = s.scope;
+  const pa = document.getElementById('scopePasteArea');
+  if (!scope || Object.keys(scope).length === 0) {
+    if (pa) pa.style.display = 'block';
+    return;
+  }
+  if (pa) pa.style.display = 'none';
+  const eca = document.getElementById('expCardArea');
+  if (eca) eca.style.display = 'block';
+  const loaded = document.getElementById('scopeLoaded');
+  if (loaded) { loaded.style.display = 'block'; loaded.textContent = Object.keys(scope).length + ' headings loaded'; }
+  buildExpList(scope);
+  if (expList.length) renderExpCard();
+}
+
+// -- PHASE 2 JOURNAL -------------------------------------------------------
+function saveP2Entry() {
+  const fields = ['p2s0','p2s1','p2s2','p2s3','p2s4'];
+  const vals = fields.map(id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; });
+  if (vals.every(v => !v)) { showToast('Nothing to save yet'); return; }
+  const s = getState();
+  const p = phase(s.week);
+  const phaseQs = QUESTIONS.filter(q => q.phase === p);
+  const qi = s.qIdx % phaseQs.length;
+  s.entries.push({
+    date: new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
+    week: s.week, phase: 2,
+    q: phaseQs[qi].q,
+    s0:vals[0], s1:vals[1], s2:vals[2], s3:vals[3], s4:vals[4]
+  });
+  s.day = (s.day||1) + 1;
+  s.qIdx = s.qIdx + 1;
+  persist(s);
+  clearP2J();
+  renderP2Entries(s);
+  showToast('Entry saved');
+}
+
+function clearP2J() {
+  ['p2s0','p2s1','p2s2','p2s3','p2s4'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+}
+
+function renderP2Entries(s) {
+  const el = document.getElementById('p2PastEntries');
+  if (!el) return;
+  const p2 = s.entries.filter(e => e.phase === 2 || e.s4);
+  if (!p2.length) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = '<div class="past-label">Phase 2 entries -- ' + p2.length + ' total</div>';
+  [...p2].reverse().slice(0,8).forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'entry';
+    let html = '<div class="e-date">' + e.date + ' -- Week ' + e.week + '</div>';
+    if (e.q && e.s0) html += '<div class="e-line e-q"><b>Q:</b> ' + e.q + '<br><b>A:</b> ' + e.s0 + '</div>';
+    if (e.s1) html += '<div class="e-line"><b>Drained:</b> ' + e.s1 + '</div>';
+    if (e.s2) html += '<div class="e-line"><b>Energy:</b> ' + e.s2 + '</div>';
+    if (e.s3) html += '<div class="e-line"><b>Body:</b> ' + e.s3 + '</div>';
+    if (e.s4) html += '<div class="e-line e-q"><b>Heading:</b> ' + e.s4 + '</div>';
+    div.innerHTML = html;
+    el.appendChild(div);
+  });
+}
+
+
 // -- RENDER -----------------------------------------------------------------
 function render() {
   const s = getState();
