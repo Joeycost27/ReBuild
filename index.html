@@ -820,7 +820,11 @@ function renderExpCard() {
   const obs = exp.obs || { what:'', shift:'', live:'' };
   const state = exp.state || 'open';
   const tags = exp.tags || [];
-  const ex = OBS_EXAMPLES[code] || OBS_EXAMPLES.CONF;
+  const ex = (OBS_EXAMPLES && OBS_EXAMPLES[code]) ? OBS_EXAMPLES[code] : {
+    what: 'e.g. describe specifically what happened -- who, what, where, what you did',
+    shift: 'e.g. what changed in how you saw it or responded to it',
+    live: 'e.g. what part of this is still unresolved or active'
+  };
 
   document.getElementById('expCounter').textContent = (expIdx+1) + ' of ' + expList.length + ' experiences';
 
@@ -831,7 +835,7 @@ function renderExpCard() {
     const on = tags.includes(t);
     const tdata = TAGS[t];
     const tid = t.replace(/[^a-zA-Z0-9]/g,'_');
-    return '<button class="pill'+(on?' on':'')+'" style="'+(on?'background:'+tdata.color+';border-color:'+tdata.color+';color:white;':'')+'" data-tag="'+t.replace(/'/g,"&#39;")+'" data-tid="'+tid+'" onclick="toggleTag(this)">'+t+'</button>';
+    return '<button class="pill'+(on?' on':'')+'" style="'+(on?'background:'+tdata.color+';border-color:'+tdata.color+';color:white;':'')+'" data-tag="'+encodeURIComponent(t)+'" data-tid="'+tid+'" onclick="toggleTag(this)">'+t+'</button>';
   }).join('');
 
   let revealsHtml = tagKeys.map(t => {
@@ -878,7 +882,7 @@ function getHName(code) {
 }
 
 function toggleTag(btn) {
-  const t = btn.dataset.tag;
+  const t = decodeURIComponent(btn.dataset.tag);
   const tid = btn.dataset.tid || t.replace(/[^a-zA-Z0-9]/g,'_');
   const s = getState();
   const item = expList[expIdx];
@@ -972,7 +976,14 @@ function parseScope(raw) {
       if (eIdx === -1) break;
       const nextE = block.indexOf('EXP:', eIdx + 4);
       const text = (nextE > -1 ? block.slice(eIdx + 4, nextE) : block.slice(eIdx + 4)).trim();
-      if (text) exps.push({ id: exps.length, text, state: 'open', tags: [], obs: {} });
+      if (text) {
+        // Strip Claude's suggested tags from end of EXP line e.g. [Held ground, Pattern spotted]
+        const cleanText = text.replace(/[ ]*[[][^\]]+[]][ ]*$/, '').trim();
+        // Extract suggested tags if present
+        const tagMatch = text.match(/[[]([^\]]+)[]][ ]*$/);
+        const suggestedTags = tagMatch ? tagMatch[1].split(',').map(t=>t.trim()).filter(t=>t) : [];
+        exps.push({ id: exps.length, text: cleanText, state: 'open', tags: suggestedTags, obs: {} });
+      }
       searchFrom = eIdx + 4;
     }
     scope[code] = { summary, exps };
