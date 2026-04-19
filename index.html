@@ -1,30 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rebuild</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#111;
+  color:#eee;
+  margin:0;
+  padding:20px;
+}
+
+h1 { margin-top:0; }
+
+textarea {
+  width:100%;
+  height:120px;
+  background:#222;
+  color:#eee;
+  border:1px solid #444;
+  padding:10px;
+}
+
+button {
+  background:#333;
+  color:#eee;
+  border:1px solid #555;
+  padding:8px 12px;
+  margin:5px 5px 5px 0;
+  cursor:pointer;
+}
+
+button:hover { background:#444; }
+
+#expCard {
+  margin-top:20px;
+  padding:15px;
+  background:#1a1a1a;
+  border:1px solid #333;
+}
+
+.pill {
+  display:inline-block;
+  padding:6px 10px;
+  margin:4px;
+  border:1px solid #555;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.pill.on {
+  background:#4caf50;
+  border-color:#4caf50;
+  color:white;
+}
+
+.nav {
+  margin-top:10px;
+}
+
+#toast {
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#333;
+  padding:10px 15px;
+  border:1px solid #555;
+  opacity:0;
+  transition:opacity 0.3s;
+}
+
+#toast.on { opacity:1; }
+
+</style>
+</head>
+
+<body>
+
+<h1>Rebuild</h1>
+
+<div id="scopePasteArea">
+  <textarea id="scopePaste" placeholder="Paste scope here..."></textarea><br>
+  <button onclick="loadScope()">Load Scope</button>
+</div>
+
+<div id="expCardArea" style="display:none;">
+  <div id="expCard"></div>
+
+  <div class="nav">
+    <button onclick="navExp(-1)">Prev</button>
+    <button onclick="navExp(1)">Next</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
 <script>
-const STORAGE_KEY = 'rb3';
 
 /* ---------------- STATE ---------------- */
 
-function loadState() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-  } catch {
-    return {};
-  }
+const STORAGE_KEY = 'rb3';
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch { return {}; }
 }
 
-function saveState(state) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+function persist(s) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
 }
 
 function getState() {
-  const s = loadState();
-
-  if (!s.week) s.week = 1;
-  if (!s.day) s.day = 1;
-  if (s.qIdx === undefined) s.qIdx = 0;
-  if (!s.entries) s.entries = [];
-  if (!s.scope) s.scope = {};
-
-  return s;
+  const s = load();
+  return {
+    week:    s.week    || 1,
+    day:     s.day     || 1,
+    qIdx:    s.qIdx !== undefined ? s.qIdx : 0,
+    entries: s.entries || [],
+    scope:   s.scope   || {}
+  };
 }
 
 /* ---------------- SCOPE ---------------- */
@@ -34,17 +130,15 @@ function loadScope() {
   if (!raw) return showToast('Nothing pasted');
 
   const parsed = parseScope(raw);
-
   if (!parsed || Object.keys(parsed).length === 0) {
     return showToast('Scope not recognised');
   }
 
-  const state = getState();
-  state.scope = parsed;
+  const s = getState();
+  s.scope = parsed;
+  persist(s);
 
-  saveState(state);
-
-  buildExpList(state.scope);
+  buildExpList(s.scope);
   expIdx = 0;
 
   render();
@@ -56,23 +150,17 @@ function parseScope(raw) {
   const scope = {};
   const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
 
-  const cleaned = raw.replace(/[*]+/g, '').replace(/[_]{2,}/g, '');
-
   codes.forEach(code => {
-    const start = cleaned.indexOf('##'+code+'##');
-    if (start === -1) return;
+    const match = raw.split('##'+code+'##')[1];
+    if (!match) return;
 
-    const next = cleaned.indexOf('##', start + 6);
-    const block = (next > -1
-      ? cleaned.slice(start + 6, next)
-      : cleaned.slice(start + 6)
-    ).trim();
+    const next = match.split('##')[0];
 
-    const summaryMatch = block.match(/SUMMARY:(.*?)(EXP:|$)/s);
+    const summaryMatch = next.match(/SUMMARY:(.*?)(EXP:|$)/s);
     const summary = summaryMatch ? summaryMatch[1].trim() : '';
 
     const exps = [];
-    const expMatches = [...block.matchAll(/EXP:(.*?)(?=EXP:|$)/gs)];
+    const expMatches = [...next.matchAll(/EXP:(.*?)(?=EXP:|$)/gs)];
 
     expMatches.forEach((m, i) => {
       let text = m[1].trim();
@@ -106,52 +194,41 @@ function buildExpList(scope) {
   expList = [];
   if (!scope) return;
 
-  const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
-
-  codes.forEach(code => {
-    const block = scope[code];
-    if (!block) return;
-
-    block.exps.forEach((_, i) => {
+  Object.keys(scope).forEach(code => {
+    scope[code].exps.forEach((_, i) => {
       expList.push({ code, expIdx: i });
     });
   });
 }
 
 function renderExpCard() {
-  const state = getState();
+  const s = getState();
   const item = expList[expIdx];
   if (!item) return;
 
-  const exp = state.scope[item.code].exps[item.expIdx];
-
-  const tags = exp.tags || [];
+  const exp = s.scope[item.code].exps[item.expIdx];
 
   const tagHtml = Object.keys(TAGS).map(t => {
-    const on = tags.includes(t);
+    const on = exp.tags.includes(t);
     return `
-      <button class="pill ${on ? 'on' : ''}"
+      <span class="pill ${on ? 'on' : ''}"
         data-tag="${encodeURIComponent(t)}"
         onclick="toggleTag(this)">
         ${t}
-      </button>`;
+      </span>`;
   }).join('');
 
   document.getElementById('expCard').innerHTML = `
-    <div class="exp-card-main">
-      <div class="exp-heading-tag">${item.code}</div>
-      <div class="exp-text-main">${exp.text}</div>
+    <div><strong>${item.code}</strong></div>
+    <div style="margin:10px 0;">${exp.text}</div>
+    <div>${tagHtml}</div>
 
-      <div class="pills-wrap">${tagHtml}</div>
+    <textarea onchange="saveObs('note', this.value)"
+      placeholder="Notes...">${exp.obs?.note || ''}</textarea>
 
-      <textarea onchange="saveObs('what', this.value)">
-        ${exp.obs?.what || ''}
-      </textarea>
-
-      <div style="margin-top:10px;">
-        <button onclick="setState('progressing')">Progressing</button>
-        <button onclick="setState('closed')">Closed</button>
-      </div>
+    <div>
+      <button onclick="setState('progressing')">Progressing</button>
+      <button onclick="setState('closed')">Closed</button>
     </div>
   `;
 }
@@ -159,47 +236,47 @@ function renderExpCard() {
 /* ---------------- INTERACTION ---------------- */
 
 function toggleTag(btn) {
-  const tag = decodeURIComponent(btn.dataset.tag);
+  const t = decodeURIComponent(btn.dataset.tag);
 
-  const state = getState();
+  const s = getState();
   const item = expList[expIdx];
   if (!item) return;
 
-  const exp = state.scope[item.code].exps[item.expIdx];
+  const exp = s.scope[item.code].exps[item.expIdx];
 
   if (!exp.tags) exp.tags = [];
 
-  const i = exp.tags.indexOf(tag);
+  const i = exp.tags.indexOf(t);
   if (i > -1) exp.tags.splice(i, 1);
-  else exp.tags.push(tag);
+  else exp.tags.push(t);
 
-  saveState(state);
+  persist(s);
   renderExpCard();
 }
 
 function saveObs(field, val) {
-  const state = getState();
+  const s = getState();
   const item = expList[expIdx];
   if (!item) return;
 
-  const exp = state.scope[item.code].exps[item.expIdx];
+  const exp = s.scope[item.code].exps[item.expIdx];
 
   if (!exp.obs) exp.obs = {};
   exp.obs[field] = val;
 
-  saveState(state);
+  persist(s);
 }
 
-function setState(newState) {
-  const state = getState();
+function setState(st) {
+  const s = getState();
   const item = expList[expIdx];
   if (!item) return;
 
-  const exp = state.scope[item.code].exps[item.expIdx];
+  const exp = s.scope[item.code].exps[item.expIdx];
 
-  exp.state = exp.state === newState ? 'open' : newState;
+  exp.state = exp.state === st ? 'open' : st;
 
-  saveState(state);
+  persist(s);
   renderExpCard();
 }
 
@@ -210,53 +287,52 @@ function navExp(dir) {
   renderExpCard();
 }
 
-/* ---------------- INIT ---------------- */
-
-function render() {
-  const state = getState();
-
-  buildExpList(state.scope);
-
-  if (expList.length) {
-    renderExpCard();
-    document.getElementById('expCardArea').style.display = 'block';
-  } else {
-    document.getElementById('scopePasteArea').style.display = 'block';
-  }
-}
-
 /* ---------------- UI ---------------- */
 
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('on');
-  setTimeout(() => t.classList.remove('on'), 2000);
+  setTimeout(()=>t.classList.remove('on'),2000);
 }
 
-/* ---------------- TAG DEFINITIONS ---------------- */
+/* ---------------- TAGS ---------------- */
 
 const TAGS = {
-  'Held ground': {},
-  'Named it': {},
-  'Did not react': {},
-  'Read room': {},
-  'Trust break': {},
-  'Body signal': {},
-  'Stayed quiet': {},
-  'Used script': {},
-  'Pattern spotted': {},
-  'Still open': {},
-  'Win noted': {},
-  'Cost named': {},
-  'Avoidance': {},
-  'Catastrophising': {},
-  'Rumination': {},
-  'Repair': {}
+  'Held ground':{},
+  'Named it':{},
+  'Did not react':{},
+  'Read room':{},
+  'Trust break':{},
+  'Body signal':{},
+  'Stayed quiet':{},
+  'Used script':{},
+  'Pattern spotted':{},
+  'Still open':{},
+  'Win noted':{},
+  'Cost named':{},
+  'Avoidance':{},
+  'Catastrophising':{},
+  'Rumination':{},
+  'Repair':{}
 };
 
-/* ---------------- START ---------------- */
+/* ---------------- INIT ---------------- */
+
+function render() {
+  const s = getState();
+
+  if (s.scope && Object.keys(s.scope).length > 0) {
+    buildExpList(s.scope);
+    document.getElementById('scopePasteArea').style.display = 'none';
+    document.getElementById('expCardArea').style.display = 'block';
+    renderExpCard();
+  }
+}
 
 render();
 
 </script>
+
+</body>
+</html>
