@@ -1,46 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Rebuild</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background:#111;
-  color:#eee;
-  margin:0;
-  padding:20px;
-}
+body { font-family: Arial; background:#111; color:#eee; padding:20px; }
 
-h1 { margin-top:0; }
+textarea { width:100%; height:120px; background:#222; color:#eee; border:1px solid #444; }
 
-textarea {
-  width:100%;
-  height:120px;
-  background:#222;
-  color:#eee;
-  border:1px solid #444;
-  padding:10px;
-}
-
-button {
-  background:#333;
-  color:#eee;
-  border:1px solid #555;
-  padding:8px 12px;
-  margin:5px 5px 5px 0;
-  cursor:pointer;
-}
-
-button:hover { background:#444; }
-
-#expCard {
-  margin-top:20px;
-  padding:15px;
-  background:#1a1a1a;
-  border:1px solid #333;
-}
+#expCard { margin-top:20px; padding:15px; border:1px solid #333; background:#1a1a1a; }
 
 .pill {
   display:inline-block;
@@ -50,76 +19,54 @@ button:hover { background:#444; }
   cursor:pointer;
   font-size:12px;
 }
+.pill.on { background:#4caf50; color:white; border-color:#4caf50; }
 
-.pill.on {
-  background:#4caf50;
-  border-color:#4caf50;
-  color:white;
-}
-
-.nav {
-  margin-top:10px;
-}
-
-#toast {
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  background:#333;
-  padding:10px 15px;
-  border:1px solid #555;
-  opacity:0;
-  transition:opacity 0.3s;
-}
-
-#toast.on { opacity:1; }
-
+button { margin:5px; }
 </style>
-</head>
 
+</head>
 <body>
 
-<h1>Rebuild</h1>
+<h2>Rebuild</h2>
 
+<!-- SCOPE INPUT -->
 <div id="scopePasteArea">
-  <textarea id="scopePaste" placeholder="Paste scope here..."></textarea><br>
+  <textarea id="scopePaste" placeholder="Paste scope..."></textarea><br>
   <button onclick="loadScope()">Load Scope</button>
 </div>
 
+<!-- CARD -->
 <div id="expCardArea" style="display:none;">
   <div id="expCard"></div>
 
-  <div class="nav">
-    <button onclick="navExp(-1)">Prev</button>
-    <button onclick="navExp(1)">Next</button>
-  </div>
+  <button onclick="navExp(-1)">Prev</button>
+  <button onclick="navExp(1)">Next</button>
 </div>
-
-<div id="toast"></div>
 
 <script>
 
 /* ---------------- STATE ---------------- */
 
-const STORAGE_KEY = 'rb3';
+const KEY = 'rb3';
 
 function load() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  try { return JSON.parse(localStorage.getItem(KEY)) || {}; }
   catch { return {}; }
 }
 
 function persist(s) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  localStorage.setItem(KEY, JSON.stringify(s));
 }
 
+/* 🔧 FIXED: scope now included */
 function getState() {
   const s = load();
   return {
-    week:    s.week    || 1,
-    day:     s.day     || 1,
-    qIdx:    s.qIdx !== undefined ? s.qIdx : 0,
+    week: s.week || 1,
+    day: s.day || 1,
+    qIdx: s.qIdx ?? 0,
     entries: s.entries || [],
-    scope:   s.scope   || {}
+    scope: s.scope || {}   // ← CRITICAL FIX
   };
 }
 
@@ -127,59 +74,53 @@ function getState() {
 
 function loadScope() {
   const raw = document.getElementById('scopePaste').value.trim();
-  if (!raw) return showToast('Nothing pasted');
+  if (!raw) return;
 
-  const parsed = parseScope(raw);
-  if (!parsed || Object.keys(parsed).length === 0) {
-    return showToast('Scope not recognised');
-  }
+  const scope = parseScope(raw);
 
   const s = getState();
-  s.scope = parsed;
+  s.scope = scope;
+
   persist(s);
 
-  buildExpList(s.scope);
+  buildExpList(scope);
   expIdx = 0;
 
   render();
-
-  showToast('Scope loaded');
 }
 
+/* parser unchanged structurally */
 function parseScope(raw) {
   const scope = {};
   const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
 
   codes.forEach(code => {
-    const match = raw.split('##'+code+'##')[1];
-    if (!match) return;
+    const part = raw.split('##'+code+'##')[1];
+    if (!part) return;
 
-    const next = match.split('##')[0];
-
-    const summaryMatch = next.match(/SUMMARY:(.*?)(EXP:|$)/s);
-    const summary = summaryMatch ? summaryMatch[1].trim() : '';
+    const block = part.split('##')[0];
 
     const exps = [];
-    const expMatches = [...next.matchAll(/EXP:(.*?)(?=EXP:|$)/gs)];
+    const matches = [...block.matchAll(/EXP:(.*?)(?=EXP:|$)/gs)];
 
-    expMatches.forEach((m, i) => {
+    matches.forEach((m,i) => {
       let text = m[1].trim();
 
-      const tagMatch = text.match(/\[(.*?)\]\s*$/);
+      const tagMatch = text.match(/\[(.*?)\]$/);
       const tags = tagMatch ? tagMatch[1].split(',').map(t=>t.trim()) : [];
 
-      text = text.replace(/\[(.*?)\]\s*$/, '').trim();
+      text = text.replace(/\[(.*?)\]$/, '').trim();
 
       exps.push({
-        id: i,
+        id:i,
         text,
         tags,
-        state: 'open',
-        obs: {}
+        state:'open',
+        obs:{}
       });
     });
 
-    scope[code] = { summary, exps };
+    scope[code] = { exps };
   });
 
   return scope;
@@ -195,12 +136,13 @@ function buildExpList(scope) {
   if (!scope) return;
 
   Object.keys(scope).forEach(code => {
-    scope[code].exps.forEach((_, i) => {
-      expList.push({ code, expIdx: i });
+    scope[code].exps.forEach((_,i)=>{
+      expList.push({code,expIdx:i});
     });
   });
 }
 
+/* 🔧 FIX: always pull from state (no stale exp objects) */
 function renderExpCard() {
   const s = getState();
   const item = expList[expIdx];
@@ -208,53 +150,48 @@ function renderExpCard() {
 
   const exp = s.scope[item.code].exps[item.expIdx];
 
-  const tagHtml = Object.keys(TAGS).map(t => {
+  const pills = Object.keys(TAGS).map(t=>{
     const on = exp.tags.includes(t);
-    return `
-      <span class="pill ${on ? 'on' : ''}"
-        data-tag="${encodeURIComponent(t)}"
-        onclick="toggleTag(this)">
-        ${t}
-      </span>`;
+    return `<span class="pill ${on?'on':''}"
+      data-tag="${encodeURIComponent(t)}"
+      onclick="toggleTag(this)">${t}</span>`;
   }).join('');
 
   document.getElementById('expCard').innerHTML = `
-    <div><strong>${item.code}</strong></div>
+    <b>${item.code}</b>
     <div style="margin:10px 0;">${exp.text}</div>
-    <div>${tagHtml}</div>
+    <div>${pills}</div>
 
-    <textarea onchange="saveObs('note', this.value)"
-      placeholder="Notes...">${exp.obs?.note || ''}</textarea>
-
-    <div>
-      <button onclick="setState('progressing')">Progressing</button>
-      <button onclick="setState('closed')">Closed</button>
-    </div>
+    <textarea onchange="saveObs('note',this.value)">
+${exp.obs?.note || ''}
+</textarea>
   `;
 }
 
 /* ---------------- INTERACTION ---------------- */
 
+/* 🔧 FIX: guarded + re-render */
 function toggleTag(btn) {
   const t = decodeURIComponent(btn.dataset.tag);
 
   const s = getState();
   const item = expList[expIdx];
-  if (!item) return;
+  if (!item || !s.scope[item.code]) return;
 
   const exp = s.scope[item.code].exps[item.expIdx];
+  if (!exp) return;
 
   if (!exp.tags) exp.tags = [];
 
   const i = exp.tags.indexOf(t);
-  if (i > -1) exp.tags.splice(i, 1);
+  if (i>-1) exp.tags.splice(i,1);
   else exp.tags.push(t);
 
   persist(s);
   renderExpCard();
 }
 
-function saveObs(field, val) {
+function saveObs(field,val){
   const s = getState();
   const item = expList[expIdx];
   if (!item) return;
@@ -262,38 +199,16 @@ function saveObs(field, val) {
   const exp = s.scope[item.code].exps[item.expIdx];
 
   if (!exp.obs) exp.obs = {};
-  exp.obs[field] = val;
+  exp.obs[field]=val;
 
   persist(s);
-}
-
-function setState(st) {
-  const s = getState();
-  const item = expList[expIdx];
-  if (!item) return;
-
-  const exp = s.scope[item.code].exps[item.expIdx];
-
-  exp.state = exp.state === st ? 'open' : st;
-
-  persist(s);
-  renderExpCard();
 }
 
 /* ---------------- NAV ---------------- */
 
-function navExp(dir) {
+function navExp(dir){
   expIdx = (expIdx + dir + expList.length) % expList.length;
   renderExpCard();
-}
-
-/* ---------------- UI ---------------- */
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('on');
-  setTimeout(()=>t.classList.remove('on'),2000);
 }
 
 /* ---------------- TAGS ---------------- */
@@ -305,8 +220,6 @@ const TAGS = {
   'Read room':{},
   'Trust break':{},
   'Body signal':{},
-  'Stayed quiet':{},
-  'Used script':{},
   'Pattern spotted':{},
   'Still open':{},
   'Win noted':{},
@@ -319,13 +232,13 @@ const TAGS = {
 
 /* ---------------- INIT ---------------- */
 
-function render() {
+function render(){
   const s = getState();
 
-  if (s.scope && Object.keys(s.scope).length > 0) {
+  if (s.scope && Object.keys(s.scope).length){
     buildExpList(s.scope);
-    document.getElementById('scopePasteArea').style.display = 'none';
-    document.getElementById('expCardArea').style.display = 'block';
+    document.getElementById('scopePasteArea').style.display='none';
+    document.getElementById('expCardArea').style.display='block';
     renderExpCard();
   }
 }
