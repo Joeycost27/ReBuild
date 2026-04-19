@@ -667,7 +667,8 @@ function getState() {
     week:    s.week    || 1,
     day:     s.day     || 1,
     qIdx:    s.qIdx !== undefined ? s.qIdx : 0,
-    entries: s.entries || []
+    entries: s.entries || [],
+    scope:   s.scope   || {}
   };
 }
 
@@ -816,11 +817,16 @@ function renderExpCard() {
   if (!expList.length) return;
   const item = expList[expIdx];
   const code = item.code;
-  const exp = item.exp;
+  const s2 = getState();
+  const exp = (s2.scope && s2.scope[code] && s2.scope[code].exps) ? s2.scope[code].exps[item.expIdx] : item.exp;
   const obs = exp.obs || { what:'', shift:'', live:'' };
   const state = exp.state || 'open';
   const tags = exp.tags || [];
-  const ex = OBS_EXAMPLES[code] || OBS_EXAMPLES.CONF;
+  const ex = (OBS_EXAMPLES && OBS_EXAMPLES[code]) ? OBS_EXAMPLES[code] : {
+    what: 'e.g. describe specifically what happened -- who, what, where, what you did',
+    shift: 'e.g. what changed in how you saw it or responded to it',
+    live: 'e.g. what part of this is still unresolved or active'
+  };
 
   document.getElementById('expCounter').textContent = (expIdx+1) + ' of ' + expList.length + ' experiences';
 
@@ -830,13 +836,15 @@ function renderExpCard() {
   let pillsHtml = tagKeys.map(t => {
     const on = tags.includes(t);
     const tdata = TAGS[t];
-    return '<button class="pill'+(on?' on':'')+'" style="'+(on?'background:'+tdata.color+';border-color:'+tdata.color+';color:white;':'')+'" data-tag="'+t.replace(/'/g,"&#39;")+'" onclick="toggleTag(this)">'+t+'</button>';
+    const tid = t.replace(/[^a-zA-Z0-9]/g,'_');
+    return '<button class="pill'+(on?' on':'')+'" style="'+(on?'background:'+tdata.color+';border-color:'+tdata.color+';color:white;':'')+'" data-tag="'+encodeURIComponent(t)+'" data-tid="'+tid+'" onclick="toggleTag(this)">'+t+'</button>';
   }).join('');
 
   let revealsHtml = tagKeys.map(t => {
     const on = tags.includes(t);
     const tdata = TAGS[t];
-    return '<div class="pill-reveal'+(on?' on':'')+'" id="reveal-'+t.replace(/[^a-z]/gi,'_')+'" style="border-left-color:'+tdata.color+';background:'+tdata.bg+'15;">'
+    const tid = t.replace(/[^a-zA-Z0-9]/g,'_');
+    return '<div class="pill-reveal'+(on?' on':'')+'" id="reveal-'+tid+'" style="border-left-color:'+tdata.color+';background:'+tdata.bg+'15;">'
       + '<div class="pr-tag" style="color:'+tdata.color+'">'+t+'</div>'
       + '<div class="pr-main">'+tdata.main+'</div>'
       + '<div class="pr-sub" style="font-style:italic;color:var(--muted);margin-bottom:8px;">'+tdata.eg+'</div>'
@@ -854,19 +862,12 @@ function renderExpCard() {
     + '<div class="pills-wrap">'+pillsHtml+'</div>'
     + revealsHtml
     + '<div class="obs-section">'
-    + '<div class="obs-label">Your observations</div>'
-    + '<div class="obs-field"><div class="obs-prompt"><em>1.</em> What actually happened</div>'
-    + '<textarea rows="2" placeholder="'+ex.what+'" data-field="what" onchange="saveObs(this.dataset.field,this.value)" style="margin-bottom:0;">'+obs.what+'</textarea></div>'
-    + '<div class="obs-field" style="margin-top:10px;"><div class="obs-prompt"><em>2.</em> What shifted for me</div>'
-    + '<textarea rows="2" placeholder="'+ex.shift+'" data-field="shift" onchange="saveObs(this.dataset.field,this.value)" style="margin-bottom:0;">'+obs.shift+'</textarea></div>'
-    + '<div class="obs-field" style="margin-top:10px;"><div class="obs-prompt"><em>3.</em> What is still live</div>'
-    + '<textarea rows="2" placeholder="'+ex.live+'" data-field="live" onchange="saveObs(this.dataset.field,this.value)" style="margin-bottom:0;">'+obs.live+'</textarea></div>'
-    + '<div class="exp-state-row">'
-    + '<div class="state-pills">'
-    + '<button class="state-pill" data-st="progressing" onclick="saveState(this)" style="'+(state==='progressing'?'background:#E6F1FB;color:#185FA5;border-color:#185FA5;':'')+'>Progressing</button>'
-    + '<button class="state-pill" data-st="closed" onclick="saveState(this)" style="'+(state==='closed'?'background:#E1F5EE;color:#1D9E75;border-color:#1D9E75;':'')+'>Closed</button>'
-    + '</div>'
-    + '<div class="state-label" style="color:'+stateColors[state]+'">'+state.charAt(0).toUpperCase()+state.slice(1)+'</div>'
+    + '<div class="obs-label">Since this</div>'
+    + '<div style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:10px;">A similar moment has come up since. Did it land the same -- or did something in you respond differently?</div>'
+    + '<textarea rows="3" placeholder="e.g. same trigger, different situation -- I caught it sooner, held ground, did not spiral. Or: still wobbly on this one, reacted before catching it." data-field="since" onchange="saveObs(this.dataset.field,this.value)" style="margin-bottom:0;">'+(obs.since||'')+'</textarea>'
+    + '<div class="exp-state-row" style="margin-top:14px;">'
+    + '<button class="state-pill" data-st="closed" onclick="saveState(this)" style="'+(state==='closed'?'background:#E1F5EE;color:#1D9E75;border-color:#1D9E75;font-weight:700;':'')+'">'+(state==='closed'?'Closed -- addressed':'Mark as closed')+'</button>'
+    + '<div class="state-label" style="color:'+stateColors[state]+';font-size:11px;">'+(state==='closed'?'Claude verifies at bridge':'Open')+'</div>'
     + '</div></div></div>';
 }
 
@@ -876,17 +877,17 @@ function getHName(code) {
 }
 
 function toggleTag(btn) {
-  const t = btn.dataset.tag;
+  const t = decodeURIComponent(btn.dataset.tag);
   const s = getState();
   const item = expList[expIdx];
-  if (!item) return;
+  if (!item || !s.scope || !s.scope[item.code]) return;
   const exp = s.scope[item.code].exps[item.expIdx];
+  if (!exp) return;
   if (!exp.tags) exp.tags = [];
-  const idx = exp.tags.indexOf(t);
-  if (idx > -1) exp.tags.splice(idx, 1);
+  const i = exp.tags.indexOf(t);
+  if (i > -1) exp.tags.splice(i, 1);
   else exp.tags.push(t);
   persist(s);
-  expList[expIdx].exp = exp;
   renderExpCard();
 }
 
@@ -913,6 +914,129 @@ function saveState(btn) {
   renderExpCard();
 }
 
+
+
+
+// -- SCOPE LOAD & PARSE ---------------------------------------------------
+function clearScopePaste() {
+  const el = document.getElementById('scopePaste');
+  if (el) el.value = '';
+}
+
+function loadScope() {
+  const raw = document.getElementById('scopePaste').value.trim();
+  if (!raw) { showToast('Nothing pasted'); return; }
+  const scope = parseScope(raw);
+  if (!scope || Object.keys(scope).length === 0) { showToast('Format not recognised -- check paste'); return; }
+  const s = getState();
+  s.scope = scope;
+  persist(s);
+  document.getElementById('scopePaste').value = '';
+  renderScope(s);
+  showToast('Scope loaded');
+}
+
+function parseScope(raw) {
+  const scope = {};
+  const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
+  const cleaned = raw.replace(/[*]+/g, '').replace(/[_]{2,}/g, '');
+  codes.forEach(code => {
+    const start = cleaned.indexOf('##'+code+'##');
+    if (start === -1) return;
+    const after = cleaned.indexOf('##', start + code.length + 4);
+    const block = (after > -1 ? cleaned.slice(start + code.length + 4, after) : cleaned.slice(start + code.length + 4)).trim();
+    const sumStart = block.indexOf('SUMMARY:');
+    const expStart = block.indexOf('EXP:');
+    let summary = '';
+    if (sumStart > -1) {
+      const sumEnd = expStart > -1 ? expStart : block.length;
+      summary = block.slice(sumStart + 8, sumEnd).trim();
+    }
+    const exps = [];
+    let searchFrom = 0;
+    while (true) {
+      const eIdx = block.indexOf('EXP:', searchFrom);
+      if (eIdx === -1) break;
+      const nextE = block.indexOf('EXP:', eIdx + 4);
+      const text = (nextE > -1 ? block.slice(eIdx + 4, nextE) : block.slice(eIdx + 4)).trim();
+      if (text) {
+        // Strip Claude's suggested tags from end of EXP line e.g. [Held ground, Pattern spotted]
+        const cleanText = text.replace(/[ ]*[[][^\]]+[]][ ]*$/, '').trim();
+        // Extract suggested tags if present
+        const tagMatch = text.match(/[[]([^\]]+)[]][ ]*$/);
+        const suggestedTags = tagMatch ? tagMatch[1].split(',').map(t=>t.trim()).filter(t=>t) : [];
+        exps.push({ id: exps.length, text: cleanText, state: 'open', tags: suggestedTags, obs: {} });
+      }
+      searchFrom = eIdx + 4;
+    }
+    scope[code] = { summary, exps };
+  });
+  return scope;
+}
+
+function renderScope(s) {
+  const scope = s.scope;
+  const pa = document.getElementById('scopePasteArea');
+  if (!scope || Object.keys(scope).length === 0) {
+    if (pa) pa.style.display = 'block';
+    return;
+  }
+  if (pa) pa.style.display = 'none';
+  const eca = document.getElementById('expCardArea');
+  if (eca) eca.style.display = 'block';
+  const loaded = document.getElementById('scopeLoaded');
+  if (loaded) { loaded.style.display = 'block'; loaded.textContent = Object.keys(scope).length + ' headings loaded'; }
+  buildExpList(scope);
+  if (expList.length) renderExpCard();
+}
+
+// -- PHASE 2 JOURNAL -------------------------------------------------------
+function saveP2Entry() {
+  const fields = ['p2s0','p2s1','p2s2','p2s3','p2s4'];
+  const vals = fields.map(id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; });
+  if (vals.every(v => !v)) { showToast('Nothing to save yet'); return; }
+  const s = getState();
+  const p = phase(s.week);
+  const phaseQs = QUESTIONS.filter(q => q.phase === p);
+  const qi = s.qIdx % phaseQs.length;
+  s.entries.push({
+    date: new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
+    week: s.week, phase: 2,
+    q: phaseQs[qi].q,
+    s0:vals[0], s1:vals[1], s2:vals[2], s3:vals[3], s4:vals[4]
+  });
+  s.day = (s.day||1) + 1;
+  s.qIdx = s.qIdx + 1;
+  persist(s);
+  clearP2J();
+  renderP2Entries(s);
+  showToast('Entry saved');
+}
+
+function clearP2J() {
+  ['p2s0','p2s1','p2s2','p2s3','p2s4'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+}
+
+function renderP2Entries(s) {
+  const el = document.getElementById('p2PastEntries');
+  if (!el) return;
+  const p2 = s.entries.filter(e => e.phase === 2 || e.s4);
+  if (!p2.length) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = '<div class="past-label">Phase 2 entries -- ' + p2.length + ' total</div>';
+  [...p2].reverse().slice(0,8).forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'entry';
+    let html = '<div class="e-date">' + e.date + ' -- Week ' + e.week + '</div>';
+    if (e.q && e.s0) html += '<div class="e-line e-q"><b>Q:</b> ' + e.q + '<br><b>A:</b> ' + e.s0 + '</div>';
+    if (e.s1) html += '<div class="e-line"><b>Drained:</b> ' + e.s1 + '</div>';
+    if (e.s2) html += '<div class="e-line"><b>Energy:</b> ' + e.s2 + '</div>';
+    if (e.s3) html += '<div class="e-line"><b>Body:</b> ' + e.s3 + '</div>';
+    if (e.s4) html += '<div class="e-line e-q"><b>Heading:</b> ' + e.s4 + '</div>';
+    div.innerHTML = html;
+    el.appendChild(div);
+  });
+}
 
 
 // -- RENDER -----------------------------------------------------------------
@@ -1064,11 +1188,7 @@ function downloadLog() {
       (sc[code].exps||[]).forEach((exp,i) => {
         t += '  [' + (exp.state||'open').toUpperCase() + '] ' + exp.text + '\n';
         if (exp.tags && exp.tags.length) t += '  Tags: ' + exp.tags.join(', ') + '\n';
-        if (exp.obs) {
-          if (exp.obs.what)  t += '  What happened: ' + exp.obs.what + '\n';
-          if (exp.obs.shift) t += '  What shifted: ' + exp.obs.shift + '\n';
-          if (exp.obs.live)  t += '  Still live: ' + exp.obs.live + '\n';
-        }
+        if (exp.obs && exp.obs.since) t += '  Since this: ' + exp.obs.since + '\n';
         t += '\n';
       });
     });
