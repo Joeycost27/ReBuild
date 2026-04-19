@@ -1,48 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Rebuild</title>
-
-<style>
-body { font-family: Arial; background:#111; color:#eee; padding:20px; }
-
-textarea { width:100%; height:120px; background:#222; color:#eee; border:1px solid #444; }
-
-#expCard { margin-top:20px; padding:15px; border:1px solid #333; background:#1a1a1a; }
-
-.pill {
-  display:inline-block;
-  padding:6px 10px;
-  margin:4px;
-  border:1px solid #555;
-  cursor:pointer;
-  font-size:12px;
-}
-.pill.on { background:#4caf50; color:white; border-color:#4caf50; }
-
-button { margin:5px; }
-</style>
-
-</head>
-<body>
-
-<h2>Rebuild</h2>
-
-<!-- SCOPE INPUT -->
-<div id="scopePasteArea">
-  <textarea id="scopePaste" placeholder="Paste scope..."></textarea><br>
-  <button onclick="loadScope()">Load Scope</button>
-</div>
-
-<!-- CARD -->
-<div id="expCardArea" style="display:none;">
-  <div id="expCard"></div>
-
-  <button onclick="navExp(-1)">Prev</button>
-  <button onclick="navExp(1)">Next</button>
-</div>
-
 <script>
 
 /* ---------------- STATE ---------------- */
@@ -58,15 +13,15 @@ function persist(s) {
   localStorage.setItem(KEY, JSON.stringify(s));
 }
 
-/* 🔧 FIXED: scope now included */
+/* ✅ FIX: include scope */
 function getState() {
   const s = load();
   return {
     week: s.week || 1,
     day: s.day || 1,
-    qIdx: s.qIdx ?? 0,
+    qIdx: s.qIdx !== undefined ? s.qIdx : 0,
     entries: s.entries || [],
-    scope: s.scope || {}   // ← CRITICAL FIX
+    scope: s.scope || {}
   };
 }
 
@@ -81,7 +36,7 @@ function loadScope() {
   const s = getState();
   s.scope = scope;
 
-  persist(s);
+  persist(s); // ✅ REQUIRED
 
   buildExpList(scope);
   expIdx = 0;
@@ -89,7 +44,6 @@ function loadScope() {
   render();
 }
 
-/* parser unchanged structurally */
 function parseScope(raw) {
   const scope = {};
   const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
@@ -106,10 +60,10 @@ function parseScope(raw) {
     matches.forEach((m,i) => {
       let text = m[1].trim();
 
-      const tagMatch = text.match(/\[(.*?)\]$/);
+      const tagMatch = text.match(/\[(.*?)\]\s*$/);
       const tags = tagMatch ? tagMatch[1].split(',').map(t=>t.trim()) : [];
 
-      text = text.replace(/\[(.*?)\]$/, '').trim();
+      text = text.replace(/\[(.*?)\]\s*$/, '').trim();
 
       exps.push({
         id:i,
@@ -142,7 +96,7 @@ function buildExpList(scope) {
   });
 }
 
-/* 🔧 FIX: always pull from state (no stale exp objects) */
+/* ✅ FIX: always read from state */
 function renderExpCard() {
   const s = getState();
   const item = expList[expIdx];
@@ -170,13 +124,14 @@ ${exp.obs?.note || ''}
 
 /* ---------------- INTERACTION ---------------- */
 
-/* 🔧 FIX: guarded + re-render */
+/* ✅ FIX: guarded + re-render */
 function toggleTag(btn) {
   const t = decodeURIComponent(btn.dataset.tag);
 
   const s = getState();
   const item = expList[expIdx];
-  if (!item || !s.scope[item.code]) return;
+
+  if (!item || !s.scope || !s.scope[item.code]) return;
 
   const exp = s.scope[item.code].exps[item.expIdx];
   if (!exp) return;
@@ -188,7 +143,8 @@ function toggleTag(btn) {
   else exp.tags.push(t);
 
   persist(s);
-  renderExpCard();
+
+  renderExpCard(); // ✅ THIS was missing
 }
 
 function saveObs(field,val){
@@ -246,6 +202,3 @@ function render(){
 render();
 
 </script>
-
-</body>
-</html>
