@@ -959,11 +959,17 @@ function parseScope(raw) {
   const scope = {};
   const codes = ['CONF','TRUST','VIS','INST','IDEN','NERV','ADHD','REL','FEAR'];
   const cleaned = raw.replace(/[*]+/g, '').replace(/[_]{2,}/g, '');
+  // Only parse within SCOPE_START and SCOPE_END, ignore other sections
+  const scopeStart = cleaned.indexOf('##SCOPE_START##');
+  const scopeEnd = cleaned.indexOf('##SCOPE_END##');
+  const scopeOnly = (scopeStart > -1 && scopeEnd > -1)
+    ? cleaned.slice(scopeStart, scopeEnd)
+    : cleaned;
   codes.forEach(code => {
-    const start = cleaned.indexOf('##'+code+'##');
+    const start = scopeOnly.indexOf('##'+code+'##');
     if (start === -1) return;
-    const after = cleaned.indexOf('##', start + code.length + 4);
-    const block = (after > -1 ? cleaned.slice(start + code.length + 4, after) : cleaned.slice(start + code.length + 4)).trim();
+    const after = scopeOnly.indexOf('##', start + code.length + 4);
+    const block = (after > -1 ? scopeOnly.slice(start + code.length + 4, after) : scopeOnly.slice(start + code.length + 4)).trim();
     const sumStart = block.indexOf('SUMMARY:');
     const expStart = block.indexOf('EXP:');
     let summary = '';
