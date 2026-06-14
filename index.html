@@ -80,8 +80,8 @@ body{font-family:var(--sans);background:var(--warm);color:var(--ink);display:fle
 .btn-p:active{background:var(--ink2);}
 .btn-a{background:var(--a100);color:var(--a700);border:0.5px solid var(--a200);}
 .btn-a:active{background:var(--a200);}
-.btn-g{background:transparent;color:var(--muted);border:0.5px solid var(--border);}
-.btn-g:active{background:var(--border2);}
+.btn-g{background:var(--border2);color:var(--ink);border:1px solid var(--border);}
+.btn-g:active{background:var(--border);}
 .btn-w{width:100%;}
 .btn-s{font-size:12px;padding:7px 14px;border-radius:var(--r-sm);}
 
@@ -129,6 +129,66 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 /* STATE OPTS */
 .state-opt{border:0.5px solid var(--border);border-radius:14px;padding:14px 8px;text-align:center;background:var(--warm);cursor:pointer;transition:all 0.15s;font-family:var(--sans);}
 .state-opt.on{border-color:var(--a700);background:var(--a050);}
+
+/* BUTTON COLOURS */
+.btn-p{background:var(--ink);color:var(--warm);}
+.btn-p:active{background:var(--ink2);}
+.btn-a{background:var(--a700);color:white;border:none;}
+.btn-a:active{background:var(--a900);}
+.btn-g{background:var(--border2);color:var(--ink);border:1px solid var(--border);}
+.btn-g:active{background:var(--border);}
+.btn-grn{background:var(--g500);color:white;border:none;}
+.btn-grn:active{background:var(--g700);}
+.btn-sel{background:var(--g100);color:var(--g700);border:0.5px solid var(--g500);font-weight:700;}
+.btn-sel-r{background:var(--r100);color:var(--r700);border:0.5px solid var(--r500);font-weight:700;}
+.btn-sel-a{background:var(--a100);color:var(--a700);border:0.5px solid var(--a700);font-weight:700;}
+.state-opt{border:1.5px solid var(--border);border-radius:14px;padding:14px 8px;text-align:center;background:var(--warm);cursor:pointer;transition:all 0.18s;font-family:var(--sans);}
+.state-opt.on{border-color:var(--a700);background:var(--a050);box-shadow:0 0 0 3px rgba(184,114,42,0.15);}
+.state-opt.on .so-icon{filter:grayscale(0);}
+.so-icon{font-size:24px;margin-bottom:6px;display:block;filter:grayscale(0.4);}
+.so-label{font-size:12px;font-weight:700;color:var(--ink);}
+.so-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* PHYS BUTTONS */
+.phys-btn{border:1.5px solid var(--border);border-radius:8px;background:var(--warm);font-family:var(--sans);font-size:12px;font-weight:600;color:var(--muted);padding:7px 16px;cursor:pointer;transition:all 0.15s;}
+.phys-btn.yes{background:var(--g100);color:var(--g700);border-color:var(--g500);}
+.phys-btn.no{background:var(--r100);color:var(--r700);border-color:var(--r500);}
+
+/* LOG BTN FIXED */
+.log-fixed{position:fixed;bottom:14px;right:14px;z-index:800;}
+.log-fixed button{background:var(--ink);color:var(--a200);border:0.5px solid rgba(240,217,188,0.2);border-radius:22px;font-family:var(--sans);font-size:11px;font-weight:600;padding:8px 16px;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.25);}
+
+/* SHARP CARD */
+.sharp-task{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border2);}
+.sharp-task-done{opacity:0.5;}
+.sharp-task-btn{flex-shrink:0;border:1.5px solid var(--border);border-radius:8px;background:transparent;font-family:var(--sans);font-size:11px;font-weight:600;color:var(--muted);padding:4px 10px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.sharp-task-btn.done{background:var(--g100);color:var(--g700);border-color:var(--g500);}
+
+/* LOOP CARD */
+.loop-interrupt{background:linear-gradient(135deg,rgba(83,74,183,0.08),rgba(83,74,183,0.04));border:1px solid rgba(83,74,183,0.2);border-radius:var(--r-lg);padding:16px 18px;margin:0 14px 10px;}
+.loop-step{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;}
+.loop-num{width:24px;height:24px;border-radius:50%;background:var(--p500);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.loop-txt{font-size:13px;color:var(--ink);line-height:1.5;flex:1;}
+
+/* PROGRAMME VISUAL */
+.prog-arc-visual{margin:0 14px 14px;padding:20px 18px;background:var(--card);border:0.5px solid var(--border);border-radius:var(--r-xl);overflow:hidden;}
+.pav-track{position:relative;height:6px;background:var(--border);border-radius:3px;margin:20px 0 28px;}
+.pav-fill{position:absolute;top:0;left:0;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--ph1),var(--ph2),var(--ph3),var(--ph4),var(--ph5));width:100%;}
+.pav-nodes{position:absolute;top:-7px;width:100%;display:flex;justify-content:space-between;}
+.pav-node{width:20px;height:20px;border-radius:50%;border:2.5px solid white;cursor:default;box-shadow:0 1px 4px rgba(0,0,0,0.15);}
+.pav-labels{display:flex;justify-content:space-between;margin-top:4px;}
+.pav-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;text-align:center;flex:1;}
+.pav-weeks{display:flex;justify-content:space-between;margin-bottom:4px;}
+.pav-wk{font-size:8px;color:var(--muted);text-align:center;flex:1;}
+
+/* WIN INLINE */
+.win-inline{background:var(--g100);border:1px solid rgba(29,158,117,0.25);border-radius:var(--r-lg);padding:14px 16px;margin:0 14px 10px;}
+.win-inline-title{font-size:11px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;}
+
+/* DOORS PRE-WEEK8 */
+.pre-door{background:linear-gradient(135deg,rgba(184,114,42,0.06),rgba(184,114,42,0.02));border:0.5px solid var(--a200);border-radius:var(--r-xl);margin:0 14px 10px;padding:16px 18px;}
+.pre-door-title{font-family:var(--serif);font-size:16px;color:var(--ink);margin-bottom:6px;}
+.pre-door-sub{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
 
 /* DOOR CARD */
 .door-card{background:var(--card);border:0.5px solid var(--border);border-radius:var(--r-xl);margin:0 14px 10px;overflow:hidden;}
@@ -215,6 +275,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 </div>
 
 <!-- SCROLL AREA -->
+<div class="log-fixed"><button onclick="downloadLog()">&#8595; Log</button></div>
 <div class="scroll" id="scrollArea">
 
 <!-- NOW SCREEN -->
@@ -229,21 +290,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
   </div>
   <div class="sh">Where are you right now?</div>
   <div class="card cp" style="margin-bottom:10px;">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
       <button class="state-opt" id="optS" onclick="pickState('sharp')">
-        <div style="font-size:22px;margin-bottom:5px;">&#9889;</div>
-        <div style="font-size:12px;font-weight:600;color:var(--ink);">Sharp</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px;">progress</div>
+        <span class="so-icon">&#9889;</span>
+        <div class="so-label">Sharp</div>
+        <div class="so-sub">make progress</div>
       </button>
       <button class="state-opt" id="optF" onclick="pickState('flat')">
-        <div style="font-size:22px;margin-bottom:5px;">&#128267;</div>
-        <div style="font-size:12px;font-weight:600;color:var(--ink);">Flat</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px;">small steps</div>
+        <span class="so-icon">&#128267;</span>
+        <div class="so-label">Flat</div>
+        <div class="so-sub">small steps</div>
       </button>
       <button class="state-opt" id="optL" onclick="pickState('loop')">
-        <div style="font-size:22px;margin-bottom:5px;">&#128260;</div>
-        <div style="font-size:12px;font-weight:600;color:var(--ink);">Loop</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px;">interrupt</div>
+        <span class="so-icon">&#128260;</span>
+        <div class="so-label">Loop</div>
+        <div class="so-sub">interrupt it</div>
       </button>
     </div>
   </div>
@@ -265,11 +326,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 
 <!-- DOORS SCREEN -->
 <div class="screen" id="screenDoors">
-  <div class="sh">Your doors</div>
-  <div class="card cp" style="color:var(--muted);font-size:13px;line-height:1.7;text-align:center;">
-    <div style="font-size:36px;margin-bottom:12px;">&#128682;</div>
-    Load your week 8 bridge to activate your personal door cards.
-  </div>
 </div>
 
 <!-- WINS SCREEN -->
@@ -292,7 +348,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
       <input type="range" min="0" max="10" value="5" id="gSlider" oninput="updateGlass(this.value)" step="1" style="flex:1;">
       <div style="font-family:var(--serif);font-size:34px;color:var(--a700);min-width:32px;text-align:right;line-height:1;" id="gNum">5</div>
     </div>
-    <div style="height:6px;border-radius:3px;margin-bottom:16px;transition:all 0.3s;" id="gBar"></div>
+    <div style="height:6px;border-radius:3px;margin-bottom:16px;transition:all 0.3s;" id="gBar" style="width:50%;background:var(--a700);"></div>
     <button class="btn btn-p btn-w" onclick="logGlass()">Log this level</button>
   </div>
   <div class="sh">Today's arc</div>
@@ -303,8 +359,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
       <div>
         <div class="fl">Gout today</div>
         <div style="display:flex;gap:6px;">
-          <button class="btn btn-g btn-s" id="gY" onclick="setPhys('gout','yes')">Yes</button>
-          <button class="btn btn-g btn-s" id="gN" onclick="setPhys('gout','no')">No</button>
+          <button class="phys-btn" id="gY" onclick="setPhys('gout','yes')">Yes</button>
+          <button class="phys-btn" id="gN" onclick="setPhys('gout','no')">No</button>
         </div>
       </div>
       <div>
@@ -315,8 +371,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
     <div class="fw">
       <div class="fl">Steps met</div>
       <div style="display:flex;gap:6px;">
-        <button class="btn btn-g btn-s" id="sY" onclick="setPhys('steps','yes')">Yes</button>
-        <button class="btn btn-g btn-s" id="sN" onclick="setPhys('steps','no')">No</button>
+        <button class="phys-btn" id="sY" onclick="setPhys('steps','yes')">Yes</button>
+        <button class="phys-btn" id="sN" onclick="setPhys('steps','no')">No</button>
       </div>
     </div>
     <button class="btn btn-p btn-w" onclick="savePhysical()">Save morning check</button>
@@ -336,6 +392,32 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
     </div>
   </div>
   <div class="sh">The arc</div>
+  <div class="prog-arc-visual">
+    <div class="pav-weeks">
+      <div class="pav-wk" style="flex:4;">1&ndash;4</div>
+      <div class="pav-wk" style="flex:3;">5&ndash;7</div>
+      <div class="pav-wk" style="flex:3;">8&ndash;10</div>
+      <div class="pav-wk" style="flex:3;">11&ndash;13</div>
+      <div class="pav-wk" style="flex:3;">14&ndash;16</div>
+    </div>
+    <div class="pav-track">
+      <div class="pav-fill"></div>
+      <div class="pav-nodes">
+        <div class="pav-node" style="background:var(--ph1);"></div>
+        <div class="pav-node" style="background:var(--ph2);left:25%;position:absolute;"></div>
+        <div class="pav-node" style="background:var(--ph3);left:50%;position:absolute;transform:translateX(-50%);"></div>
+        <div class="pav-node" style="background:var(--ph4);right:19%;position:absolute;"></div>
+        <div class="pav-node" style="background:var(--ph5);right:0;position:absolute;"></div>
+      </div>
+    </div>
+    <div class="pav-labels">
+      <div class="pav-lbl" style="color:var(--ph1);flex:4;">Observe</div>
+      <div class="pav-lbl" style="color:var(--ph2);flex:3;">Recognise</div>
+      <div class="pav-lbl" style="color:var(--ph3);flex:3;">Interrupt</div>
+      <div class="pav-lbl" style="color:var(--ph4);flex:3;">Apply</div>
+      <div class="pav-lbl" style="color:var(--ph5);flex:3;">Integrate</div>
+    </div>
+  </div>
   <div class="ph-block">
     <div class="ph-hdr"><div class="ph-num" style="background:var(--ph1);">1</div><div><div class="ph-name">Observe</div><div class="ph-wks">Weeks 1&ndash;4</div></div></div>
     <div class="ph-body">
@@ -421,6 +503,28 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 
 <div class="toast" id="toast"></div>
 
+<!-- ANALYSIS PROMPT -->
+<div class="overlay" id="analysisPrompt">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh-handle"></div>
+    <div style="display:inline-flex;align-items:center;gap:8px;background:var(--p100);border-radius:20px;padding:5px 14px;margin-bottom:14px;">
+      <span style="font-size:14px;">&#128268;</span>
+      <span style="font-size:11px;font-weight:700;color:var(--p700);text-transform:uppercase;letter-spacing:0.5px;" id="apType">Extended Period</span>
+      <span style="font-size:11px;color:var(--p500);" id="apCount"></span>
+    </div>
+    <div class="sh-title" style="margin-bottom:10px;">Time to look closer.</div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:20px;" id="apMsg"></p>
+    <div style="background:var(--a100);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:20px;border-left:2px solid var(--a700);">
+      <div style="font-size:11px;font-weight:700;color:var(--a700);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">What to do</div>
+      <div style="font-size:13px;color:var(--ink);line-height:1.6;">Download your log from the button at bottom right. Take it to your Claude assistant. Say: <em style="color:var(--a900);">"I have had a run of flat/loop sessions -- please read this log and tell me what you see."</em> Claude will identify what is running and produce a top-up report if needed.</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-p" style="flex:1;" onclick="downloadLog();closeAnalysisPrompt();">Download log</button>
+      <button class="btn btn-g" onclick="resetStateRun()">Dismiss</button>
+    </div>
+  </div>
+</div>
+
 <script>
 var KEY='rb4';
 function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){return{};}}
@@ -485,18 +589,143 @@ function go(name){
   if(name==='doors')renderDoors();
 }
 
-var stateTxt={
-  sharp:{label:'Sharp -- make progress',body:'<div style="color:var(--muted);font-size:13px;padding:0 18px 10px;line-height:1.6;">You have capacity. Open a door card, work a consultancy task, or review your scope.</div>'},
-  flat: {label:'Flat -- small steps',   body:'<div style="color:var(--muted);font-size:13px;padding:0 18px 10px;line-height:1.6;">Low energy is real. Log a win. Write one evening sentence. Check your glass level.</div>'},
-  loop: {label:'In a loop -- name it',  body:'<div style="color:var(--muted);font-size:13px;padding:0 18px 10px;line-height:1.6;">Open the Doors tab. Find the pattern. Use the in-the-moment instruction.</div>'}
-};
 function pickState(st){
   ['optS','optF','optL'].forEach(function(id){document.getElementById(id).classList.remove('on');});
   var map={sharp:'optS',flat:'optF',loop:'optL'};
   document.getElementById(map[st]).classList.add('on');
-  document.getElementById('stateLabel').textContent=stateTxt[st].label;
-  document.getElementById('stateBody').innerHTML=stateTxt[st].body;
+  if(st==='sharp')resetRunOnSharp();
+  var s=getState();var w=s.week;
+  var labels={sharp:'Sharp -- make progress',flat:'Flat -- small steps',loop:'In a loop -- interrupt it'};
+  document.getElementById('stateLabel').textContent=labels[st];
+  document.getElementById('stateBody').innerHTML=buildStateBody(st,s,w);
   document.getElementById('stateContent').style.display='block';
+}
+
+function buildStateBody(st,s,w){
+  if(st==='sharp'){
+    var tasks=s.consultancy&&s.consultancy.length
+      ? '<div class="sh" style="padding:4px 0 8px;">Consultancy tasks</div>'
+        +s.consultancy.map(function(t,i){
+          return '<div class="sharp-task'+(t.done?' sharp-task-done':'')+'">'
+            +'<button class="sharp-task-btn'+(t.done?' done':'')+'" onclick="toggleConsultancy('+i+')">'+(t.done?'&#10003; Done':'Mark done')+'</button>'
+            +'<div style="font-size:13px;color:'+(t.done?'var(--muted)':'var(--ink)')+';">'+(t.done?'<s>':'')+t.text+(t.done?'</s>':'')+'</div>'
+            +'</div>';
+        }).join('')
+      : '<div style="font-size:13px;color:var(--muted);padding:4px 0 10px;line-height:1.6;">Consultancy tasks load from your week 8 bridge. Open the Doors tab to load your bridge.</div>';
+    return '<div class="card cp" style="margin:0 14px 10px;">'
+      +'<div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5;">You have capacity. Work a door card or move a consultancy task forward.</div>'
+      +tasks+'</div>';
+  }
+  if(st==='flat'){
+    return '<div class="win-inline">'
+      +'<div class="win-inline-title">&#11088; Log a win</div>'
+      +'<div class="fw"><textarea id="flatWinTxt" rows="2" placeholder="Something went right, however small..."></textarea></div>'
+      +'<div class="fw"><label class="fl">Observation -- what else is happening</label><textarea id="flatObsTxt" rows="2" placeholder="What you are noticing right now..."></textarea></div>'
+      +'<button class="btn btn-grn btn-w" onclick="saveFlatEntry()">Save</button>'
+      +'</div>';
+  }
+  if(st==='loop'){
+    var hasDoors=s.doors&&s.doors.length;
+    if(hasDoors){
+      return '<div class="loop-interrupt">'
+        +'<div style="font-size:13px;font-weight:600;color:var(--p500);margin-bottom:14px;">Pattern identified -- interrupt it</div>'
+        +'<div class="loop-step"><div class="loop-num">1</div><div class="loop-txt">Stop. One breath. You do not need to act on this right now.</div></div>'
+        +'<div class="loop-step"><div class="loop-num">2</div><div class="loop-txt">Name what is running. One word or phrase.</div></div>'
+        +'<div class="loop-step"><div class="loop-num">3</div><div class="loop-txt"><button class="btn btn-p btn-s" data-goto="doors" onclick="go(this.dataset.goto)">Open door card &#8250;</button></div></div>'
+        +'</div>';
+    } else {
+      return '<div class="loop-interrupt">'
+        +'<div style="font-size:13px;font-weight:600;color:var(--p500);margin-bottom:14px;">Temporary interrupt</div>'
+        +'<div class="loop-step"><div class="loop-num">1</div><div class="loop-txt">Stop. One breath. The thought does not need an answer right now.</div></div>'
+        +'<div class="loop-step"><div class="loop-num">2</div><div class="loop-txt">Write what is looping in one sentence. Do not analyse it.</div></div>'
+        +'<div class="fw" style="padding:0;"><textarea id="loopTempTxt" rows="2" placeholder="What is running..."></textarea></div>'
+        +'<div class="loop-step" style="margin-top:8px;"><div class="loop-num">3</div><div class="loop-txt">Write what you are doing in the next ten minutes. Redirect to action.</div></div>'
+        +'<div class="fw" style="padding:0;margin-bottom:12px;"><textarea id="loopActionTxt" rows="2" placeholder="Next action -- specific..."></textarea></div>'
+        +'<button class="btn btn-p btn-w" onclick="saveLoopEntry()">Log and close</button>'
+        +'<div style="font-size:11px;color:rgba(83,74,183,0.6);margin-top:10px;">Door cards activate at week 8 with your bridge.</div>'
+        +'</div>';
+    }
+  }
+  return '';
+}
+
+function saveFlatEntry(){
+  var win=document.getElementById('flatWinTxt');
+  var obs=document.getElementById('flatObsTxt');
+  var s=getState();
+  if(win&&win.value.trim()){s.wins.unshift({date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'}),text:win.value.trim()});}
+  if(obs&&obs.value.trim()){s.entries.push({date:new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),week:s.week,type:'flat-obs',text:obs.value.trim()});}
+  if(!s.stateRun)s.stateRun={type:'',count:0};
+  s.stateRun=s.stateRun.type==='flat'?{type:'flat',count:s.stateRun.count+1}:{type:'flat',count:1};
+  save(s);
+  if(win)win.value='';if(obs)obs.value='';
+  showToast('Saved');
+  checkStateRunTrigger(s);
+  document.getElementById('stateContent').style.display='none';
+  ['optS','optF','optL'].forEach(function(id){document.getElementById(id).classList.remove('on');});
+}
+
+function saveLoopEntry(){
+  var lt=document.getElementById('loopTempTxt');
+  var la=document.getElementById('loopActionTxt');
+  var s=getState();
+  var txt=(lt?lt.value.trim():'')+(la&&la.value.trim()?' | Next: '+la.value.trim():'');
+  if(txt){s.entries.push({date:new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),week:s.week,type:'loop',text:txt});}
+  if(!s.stateRun)s.stateRun={type:'',count:0};
+  s.stateRun=s.stateRun.type==='loop'?{type:'loop',count:s.stateRun.count+1}:{type:'loop',count:1};
+  save(s);
+  if(lt)lt.value='';if(la)la.value='';
+  showToast('Loop logged');
+  checkStateRunTrigger(s);
+  document.getElementById('stateContent').style.display='none';
+  ['optS','optF','optL'].forEach(function(id){document.getElementById(id).classList.remove('on');});
+}
+
+function checkStateRunTrigger(s){
+  if(!s.stateRun||s.stateRun.count<3)return;
+  var type=s.stateRun.type;
+  var count=s.stateRun.count;
+  // Show analysis prompt overlay
+  var msg=type==='flat'
+    ?count+' consecutive flat sessions. Something may need looking at more closely.'
+    :count+' consecutive loop sessions. A pattern may be running that needs naming properly.';
+  showAnalysisPrompt(msg,type,count);
+}
+
+function showAnalysisPrompt(msg,type,count){
+  var el=document.getElementById('analysisPrompt');
+  if(!el)return;
+  document.getElementById('apMsg').textContent=msg;
+  document.getElementById('apType').textContent=type==='flat'?'Extended Flat Period':'Extended Loop Period';
+  document.getElementById('apCount').textContent=count+' sessions';
+  el.classList.add('on');
+}
+
+function closeAnalysisPrompt(){
+  var el=document.getElementById('analysisPrompt');
+  if(el)el.classList.remove('on');
+}
+
+function resetStateRun(){
+  var s=getState();
+  s.stateRun={type:'',count:0};
+  save(s);
+  closeAnalysisPrompt();
+  showToast('Reset');
+}
+
+function resetRunOnSharp(){
+  var s=getState();
+  if(s.stateRun&&s.stateRun.count>0){s.stateRun={type:'',count:0};save(s);}
+}
+
+function toggleConsultancy(i){
+  var s=getState();
+  if(s.consultancy&&s.consultancy[i]){
+    s.consultancy[i].done=!s.consultancy[i].done;
+    if(s.consultancy[i].done)s.wins.unshift({date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'}),text:'Consultancy: '+s.consultancy[i].text});
+    save(s);pickState('sharp');
+  }
 }
 
 function updateGlass(v){
@@ -533,8 +762,8 @@ function setPhys(f,v){
   physD[f]=v;
   var k=f.charAt(0).toUpperCase();
   var y=document.getElementById(k+'Y');var n=document.getElementById(k+'N');
-  if(v==='yes'){y.style.background='var(--g100)';y.style.color='var(--g700)';y.style.borderColor='var(--g500)';n.style.background='';n.style.color='';n.style.borderColor='';}
-  else{n.style.background='var(--r100)';n.style.color='var(--r700)';n.style.borderColor='var(--r500)';y.style.background='';y.style.color='';y.style.borderColor='';}
+  if(y)y.className='phys-btn'+(v==='yes'?' yes':'');
+  if(n)n.className='phys-btn'+(v==='no'?' no':'');
 }
 function savePhysical(){
   var s=getState();
@@ -576,8 +805,16 @@ function renderDoors(){
   var el=document.getElementById('screenDoors');
   if(!el)return;
   if(!s.doors||!s.doors.length){
+    var w=s.week;
+    var pre=w<8
+      ? '<div class="pre-door">'
+        +'<div class="pre-door-title">Doors activate at week 8.</div>'
+        +'<div class="pre-door-sub">After your week 7 bridge Claude reads your scope and produces personal door cards -- patterns specific to you with in-the-moment instructions and cascade links. Until then use the Loop interrupt on the Now tab.</div>'
+        +'<div style="font-size:11px;color:var(--muted);">Currently week '+w+' of 16</div>'
+        +'</div>'
+      : '';
     el.innerHTML='<div class="sh">Your doors</div>'
-      +'<div class="card cp" style="color:var(--muted);font-size:13px;line-height:1.7;text-align:center;"><div style="font-size:36px;margin-bottom:12px;">&#128682;</div>Load your week 8 bridge to activate your personal door cards.</div>'
+      +pre
       +'<div class="sh">Bridge</div>'+buildBridgeHTML(s);
     return;
   }
