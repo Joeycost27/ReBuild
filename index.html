@@ -1650,7 +1650,6 @@ function clearJ() { ['s0','s1','s2','s3'].forEach(id=>document.getElementById(id
 
 function downloadLog() {
   const s=getState();
-  if(!s.entries.length){ showToast('No entries yet'); return; }
   let t = 'REBUILD PROGRAMME -- PERSONAL LOG\n';
   t += 'Downloaded: '+new Date().toLocaleDateString('en-GB')+'\n\n';
   if(s.wins&&s.wins.length) {
@@ -1672,12 +1671,17 @@ function downloadLog() {
   t += '-'.repeat(44)+'\n\n';
   s.entries.forEach(e=>{
     t += `${e.date}  .  Week ${e.week}\n`;
-    if(e.q)  t += `  Question: ${e.q}\n`;
-    if(e.s0) t += `  Answer:   ${e.s0}\n`;
-    if(e.s1) t += `  Drained:  ${e.s1}\n`;
-    if(e.s2) t += `  Energy:   ${e.s2}\n`;
-    if(e.s3) t += `  Body:     ${e.s3}\n`;
-    if(e.s4) t += `  Heading:  ${e.s4}\n`;
+    if(e.q)           t += `  Question:  ${e.q}\n`;
+    if(e.s0)          t += `  Answer:    ${e.s0}\n`;
+    if(e.s1)          t += `  Drained:   ${e.s1}\n`;
+    if(e.s2)          t += `  Energy:    ${e.s2}\n`;
+    if(e.s3)          t += `  Body:      ${e.s3}\n`;
+    if(e.s4)          t += `  Heading:   ${e.s4}\n`;
+    if(e.evening)     t += `  Evening:   ${e.evening}\n`;
+    if(e.win)         t += `  Win:       ${e.win}\n`;
+    if(e.open)        t += `  Open:      ${e.open}\n`;
+    if(e.challenge)   t += `  Challenge: ${e.challenge} [${e.win?'win':'not yet'}]\n`;
+    if(e.integration) t += `  Integration: ${e.integration}\n`;
     t += '\n';
   });
   // Append scope closure report
