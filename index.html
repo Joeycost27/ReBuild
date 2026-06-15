@@ -280,13 +280,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 
 <!-- NOW SCREEN -->
 <div class="screen on" id="screenNow">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 18px 0;">
-    <button class="btn btn-g btn-s" onclick="changeWeek(-1)">&#8722;</button>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 18px 8px;">
+    <button onclick="changeWeek(-1)" style="width:44px;height:44px;border-radius:50%;border:2px solid var(--a700);background:var(--a100);color:var(--a700);font-size:22px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">&#8722;</button>
     <div style="text-align:center;">
-      <div style="font-size:13px;font-weight:600;color:var(--ink);" id="wsw">Week 1</div>
-      <div style="font-size:10px;color:var(--muted);margin-top:2px;" id="wsp">Observation</div>
+      <div style="font-size:14px;font-weight:700;color:var(--ink);" id="wsw">Week 1</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px;" id="wsp">Observation</div>
     </div>
-    <button class="btn btn-g btn-s" onclick="changeWeek(1)">&#43;</button>
+    <button onclick="changeWeek(1)" style="width:44px;height:44px;border-radius:50%;border:2px solid var(--a700);background:var(--a100);color:var(--a700);font-size:22px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">&#43;</button>
   </div>
   <div class="sh">Where are you right now?</div>
   <div class="card cp" style="margin-bottom:10px;">
@@ -760,8 +760,10 @@ function renderGlass(){
 var physD={gout:'',steps:''};
 function setPhys(f,v){
   physD[f]=v;
-  var k=f.charAt(0).toUpperCase();
-  var y=document.getElementById(k+'Y');var n=document.getElementById(k+'N');
+  var ids={gout:{y:'gY',n:'gN'},steps:{y:'sY',n:'sN'}};
+  var pair=ids[f];if(!pair)return;
+  var y=document.getElementById(pair.y);
+  var n=document.getElementById(pair.n);
   if(y)y.className='phys-btn'+(v==='yes'?' yes':'');
   if(n)n.className='phys-btn'+(v==='no'?' no':'');
 }
